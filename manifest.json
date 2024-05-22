@@ -1,0 +1,40 @@
+{
+  "name": "Live Chat Extension",
+  "description" : "in live stream record chats",
+  "version": "1.0",
+  "manifest_version": 3,
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "/src/*",
+        "assets/*"
+      ],
+      "matches": [
+        "https://live.bilibili.com/*"
+      ]
+    }
+  ],
+  "action": {
+    "default_popup": "./src/popup/popup.html",
+    "default_icon": "./assets/popup.png",
+    "default_title": "Live Chat Extension"
+  },
+  "background": {
+    "service_worker": "./src/background/index.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://live.bilibili.com/*",
+        "https://www.twitch.tv/*",
+        "https://www.douyu.com/*",
+        "https://www.huya.com/"
+      ],
+      "type": "module",
+      "css":  ["./src/content/index.css"],
+      "js": ["./src/content/index.js"],
+      "run_at": "document_end"
+    }
+  ],
+  "permissions": ["storage","declarativeContent"]
+}
