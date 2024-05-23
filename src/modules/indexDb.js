@@ -59,7 +59,6 @@ export class BasicIndexDb {
       let count = 0
       request.onsuccess = function(e) {
         let cursor = event.target.result;
-        console.log(cursor)
         if (cursor) {
           if (count >= start && count < end) {
             result.push(cursor.value);

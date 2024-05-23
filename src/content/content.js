@@ -27,6 +27,9 @@ indexDb.init().then(() => {
 function activeBiliWatch() {
   const messageList = [];
   liveData.bilibili = messageList;
+  const href = location.href.split('/')?.at(-1).split('?')
+  const liveId = href[0]
+  const liveName = document.querySelector('.room-owner-username')?.title
   const observer = new MutationObserver((mutationsList, observer) => {
     for (let mutation of mutationsList) {
       if (mutation.type === "childList") {
@@ -39,7 +42,8 @@ function activeBiliWatch() {
             uid,
             timestamp,
             siteType: "1",
-            liveId: "5194110",
+            liveId,
+            liveName
           });
       }
     }
