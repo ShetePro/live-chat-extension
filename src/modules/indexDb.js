@@ -34,6 +34,7 @@ export class BasicIndexDb {
       const request = this.indexDb.transaction('message', 'readwrite').objectStore('message').add(item)
       request.onsuccess = (event) => {
         resolve(event.target.result)
+        console.log(item, 'push')
       }
       request.onerror = (event) => {
         reject(event)
@@ -59,6 +60,7 @@ export class BasicIndexDb {
       let count = 0
       request.onsuccess = function(e) {
         let cursor = event.target.result;
+        console.log(cursor)
         if (cursor) {
           if (count >= start && count < end) {
             result.push(cursor.value);

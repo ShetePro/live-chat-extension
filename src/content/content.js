@@ -1,5 +1,5 @@
 import { BasicIndexDb } from "/src/modules/indexDb.js";
-import { createOpenPoint } from "./popupBox.js";
+import {createSearchBox} from "./searchBox.js";
 
 const biliChats = document.querySelector("#chat-items");
 biliChats.classList.add("lce-watch-chat-list");
@@ -17,11 +17,9 @@ const watchConfig = { attributes: false, childList: true, subtree: false };
 indexDb.init().then(() => {
   console.log("开启监听");
   if (biliChats) {
-    activeBiliWatch();
-    indexDb.getPageBySiteType({ pageSize: 10, pageIndex: 2, liveId: "5194110", siteType: '1' }).then((res) => {
-      console.log(res, "list");
-    });
+    // activeBiliWatch();
   }
+  createSearchBox();
 });
 
 function activeBiliWatch() {
@@ -52,4 +50,3 @@ function activeBiliWatch() {
   observer.observe(biliChats, watchConfig);
 }
 
-createOpenPoint();
