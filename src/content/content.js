@@ -1,8 +1,6 @@
 import { BasicIndexDb } from "/src/modules/indexDb.js";
-import {createSearchBox} from "./searchBox.js";
+import { BiliBiliSearch } from "./bilibili.js";
 
-const biliChats = document.querySelector("#chat-items");
-biliChats.classList.add("lce-watch-chat-list");
 const liveData = {
   bilibili: "",
   douyu: "",
@@ -14,20 +12,24 @@ const lceSetting = {
   current: "",
 };
 const watchConfig = { attributes: false, childList: true, subtree: false };
+function biliInit() {
+  const biliChats = document.body.querySelector("#chat-items");
+  console.log("bili chat", biliChats);
+  const control = new BiliBiliSearch();
+}
 indexDb.init().then(() => {
-  console.log("开启监听");
-  if (biliChats) {
-    // activeBiliWatch();
-  }
-  createSearchBox();
+  console.log("开启IndexDb监听");
+  setTimeout(() => {
+    biliInit();
+  }, 2000);
 });
 
 function activeBiliWatch() {
   const messageList = [];
   liveData.bilibili = messageList;
-  const href = location.href.split('/')?.at(-1).split('?')
-  const liveId = href[0]
-  const liveName = document.querySelector('.room-owner-username')?.title
+  const href = location.href.split("/")?.at(-1).split("?");
+  const liveId = href[0];
+  const liveName = document.querySelector(".room-owner-username")?.title;
   const observer = new MutationObserver((mutationsList, observer) => {
     for (let mutation of mutationsList) {
       if (mutation.type === "childList") {
@@ -41,12 +43,11 @@ function activeBiliWatch() {
             timestamp,
             siteType: "1",
             liveId,
-            liveName
+            liveName,
           });
       }
     }
     console.log(messageList);
   });
-  observer.observe(biliChats, watchConfig);
+  // observer.observe(biliChats, watchConfig);
 }
-
