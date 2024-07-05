@@ -9,6 +9,8 @@ export class SearchBox {
     this.cnFlag = false;
     this.searchBox = "";
     this.searchCallback = opt.searchCallback;
+    this.position = opt.position;
+    console.log(opt);
   }
   renderSearch() {
     console.log("显示直播弹幕查询");
@@ -41,7 +43,7 @@ export class SearchBox {
     box.addEventListener("compositionend", () => {
       console.log("end");
       this.cnFlag = false;
-      this.highLightText();
+      this.search();
     });
     this.searchBox.append(box);
   }
@@ -53,7 +55,7 @@ export class SearchBox {
       });
       this.searchBox.append(span);
     }
-    console.log(this.isSearch, 'is Search')
+    console.log(this.isSearch, "is Search");
     if (this.isSearch) {
       span.style.display = "block";
       span.innerText = `${this.index} / ${this.total}`;
@@ -73,23 +75,39 @@ export class SearchBox {
     });
     const group = createDocumentEl("div", {
       classList: ["lce-btn-group"],
-      append: [previous, next],
+      append: [previous, next, close],
     });
+    next.addEventListener("click", () => this.next());
+    previous.addEventListener("click", () => this.previous());
     this.searchBox.append(group);
   }
   searchTextEvent(e) {
     this.searchText = e.target.value;
     this.isSearch = this.searchText?.length > 0;
     if (!this.cnFlag) {
-      this.highLightText();
+      this.search();
     }
   }
-  highLightText() {
+  search() {
     this.searchCallback({ text: this.searchText }).then(({ index, total }) => {
       this.index = index;
       this.total = total;
       this.renderTotal();
       console.log("收到", index, total);
+    });
+  }
+  next() {
+    console.log("next", this);
+    this.index = this.index >= this.total ? 1 : this.index + 1;
+    this.position?.(this.index).then(() => {
+      this.renderTotal();
+    });
+  }
+  previous() {
+    console.log("previous", this);
+    this.index = this.index <= 1 ? this.total : this.index - 1;
+    this.position?.(this.index).then(() => {
+      this.renderTotal();
     });
   }
 }
