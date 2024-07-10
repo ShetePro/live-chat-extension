@@ -31,10 +31,11 @@ export class BiliBiliSearch {
     this.searchBox.renderSearch();
   }
   search({ text, index = 0 }) {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       console.log(text, "search text", this.biliChats);
       const list = this.biliChats.children;
       try {
+        await this.clearHighLight();
         if (text !== "") {
           this.searchText = text;
           this.searchList = [];
@@ -44,14 +45,13 @@ export class BiliBiliSearch {
               this.searchList.push(chat);
             }
           }
+          // 高亮
           this.highLight().then(() => {
             resolve({ index, total: this.searchList.length });
           });
         } else {
-          this.clearHighLight().then(() => {
-            this.searchText = "";
-            this.searchList = [];
-          });
+          this.searchText = "";
+          this.searchList = [];
           resolve({ index: 0, total: 0 });
         }
       } catch (e) {
@@ -86,7 +86,7 @@ export class BiliBiliSearch {
       this.searchList.forEach((item) => {
         const span = item.lastChild;
         span.innerHTML = item.dataset.danmaku;
-        console.log(item)
+        console.log(item);
       });
       resolve();
     });
