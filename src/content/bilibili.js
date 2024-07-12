@@ -24,7 +24,10 @@ export class BiliBiliSearch {
     this.renderSearch();
   }
   renderSearch() {
+    const { bottom, left, width, top } = this.biliChats.getBoundingClientRect();
     this.searchBox = new SearchBox({
+      x: left + width,
+      y: bottom + top + 100,
       searchCallback: (data) => this.search(data),
       position: (index) => this.scrollTo(index),
     });

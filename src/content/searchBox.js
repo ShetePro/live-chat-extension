@@ -6,11 +6,29 @@ export class SearchBox {
     this.searchText = "";
     this.index = 0;
     this.total = 0;
+    this.offset = {};
+    this.x = opt.x || 0;
+    this.y = opt.y || 0;
     this.cnFlag = false;
     this.searchBox = "";
     this.searchCallback = opt.searchCallback;
     this.position = opt.position;
-    console.log(opt);
+  }
+  // 拖拽事件
+  drag(e) {
+    const { x, y } = e;
+    const maxX = window.innerWidth - this.searchBox.clientWidth;
+    const maxY = window.innerHeight - this.searchBox.clientHeight;
+    this.x = Math.max(0, Math.min(x - this.offset.x, maxX));
+    this.y = Math.max(0, Math.min(y - this.offset.y, maxY));
+    this.setStyle();
+  }
+  // 设置样式
+  setStyle() {
+    this.searchBox.setAttribute(
+      "style",
+      `transform: translate(${this.x}px, ${this.y}px`,
+    );
   }
   renderSearch() {
     console.log("显示直播弹幕查询");
@@ -18,10 +36,29 @@ export class SearchBox {
     box.classList.add("lce-search-box");
     document.body.append(box);
     this.searchBox = box;
+    this.setStyle();
     this.renderTypeSelect();
     this.renderInput();
     this.renderTotal();
     this.renderBtn();
+    const moveCallback = (e) => this.drag(e);
+    // 设置拖拽移动
+    this.searchBox.addEventListener(
+      "mousedown",
+      (e) => {
+        const { left, top } = this.searchBox.getBoundingClientRect();
+        this.offset = {
+          x: e.x - left,
+          y: e.y - top,
+        };
+        document.body.addEventListener("mouseover", moveCallback);
+      },
+      true,
+    );
+    // 取消拖拽事件
+    document.body.addEventListener("mouseup", () => {
+      document.body.removeEventListener("mouseover", moveCallback);
+    });
   }
   renderTypeSelect() {
     const box = createDocumentEl("div", {
