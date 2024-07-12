@@ -1,5 +1,5 @@
 import { createDocumentEl } from "../utils/util.js";
-const SearchType = {
+export const SearchType = {
   user: 1,
   message: 2,
 };
@@ -96,6 +96,7 @@ export class SearchBox {
       node[0].classList.add("lce-type-show");
       node[1].classList.remove("lce-type-show");
       node[1].classList.add("lce-type-hide");
+      this.search();
     });
     this.searchBox.append(box);
   }
@@ -158,12 +159,14 @@ export class SearchBox {
     }
   }
   search() {
-    this.searchCallback({ text: this.searchText }).then(({ index, total }) => {
-      this.index = index;
-      this.total = total;
-      this.renderTotal();
-      console.log("收到", index, total);
-    });
+    this.searchCallback({ text: this.searchText, type: this.type }).then(
+      ({ index, total }) => {
+        this.index = index;
+        this.total = total;
+        this.renderTotal();
+        console.log("收到", index, total);
+      },
+    );
   }
   next() {
     console.log("next", this);

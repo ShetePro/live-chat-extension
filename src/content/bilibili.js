@@ -1,4 +1,4 @@
-import { SearchBox } from "./searchBox.js";
+import { SearchBox, SearchType } from "./searchBox.js";
 
 export class BiliBiliSearch {
   constructor() {
@@ -33,7 +33,7 @@ export class BiliBiliSearch {
     });
     this.searchBox.renderSearch();
   }
-  search({ text, index = 0 }) {
+  search({ text, index = 0, type }) {
     return new Promise(async (resolve, reject) => {
       console.log(text, "search text", this.biliChats);
       const list = this.biliChats.children;
@@ -43,13 +43,15 @@ export class BiliBiliSearch {
           this.searchText = text;
           this.searchList = [];
           for (const chat of list) {
-            const { danmaku } = chat.dataset;
-            if (danmaku?.indexOf(text) >= 0) {
+            const { danmaku, uname } = chat.dataset;
+            if (
+              (type === SearchType.user ? uname : danmaku)?.indexOf(text) >= 0
+            ) {
               this.searchList.push(chat);
             }
           }
           // 高亮
-          this.highLight().then(() => {
+          this.highLight(type).then(() => {
             resolve({ index, total: this.searchList.length });
           });
         } else {
@@ -70,10 +72,14 @@ export class BiliBiliSearch {
       );
     return list?.querySelector(".ps__scrollbar-y-rail");
   }
-  highLight() {
+  highLight(type) {
     return new Promise((resolve) => {
       this.searchList.forEach((item) => {
-        const span = item.lastChild;
+        console.log(item);
+        const span =
+          type === SearchType.user
+            ? item.querySelector(".user-name")
+            : item.lastChild;
         const html = span.innerHTML;
         const regex = new RegExp(this.searchText, "g");
         span.innerHTML = html.replace(
@@ -87,9 +93,11 @@ export class BiliBiliSearch {
   clearHighLight() {
     return new Promise((resolve) => {
       this.searchList.forEach((item) => {
+        const { danmaku, uname } = item.dataset;
+        const userName = item.querySelector(".user-name");
+        userName.innerHTML = uname + " :";
         const span = item.lastChild;
-        span.innerHTML = item.dataset.danmaku;
-        console.log(item);
+        span.innerHTML = danmaku;
       });
       resolve();
     });
