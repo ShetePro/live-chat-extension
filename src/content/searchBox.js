@@ -1,18 +1,23 @@
 import { createDocumentEl } from "../utils/util.js";
-
+const SearchType = {
+  user: 1,
+  message: 2,
+};
 export class SearchBox {
   constructor(opt) {
     this.isSearch = false;
     this.searchText = "";
     this.index = 0;
     this.total = 0;
+    this.type = opt.type || SearchType.message;
     this.offset = {};
     this.x = opt.x || 0;
     this.y = opt.y || 0;
     this.cnFlag = false;
-    this.searchBox = "";
+    this.searchBox = null;
     this.searchCallback = opt.searchCallback;
     this.position = opt.position;
+    console.log(opt, SearchType);
   }
   // 拖拽事件
   drag(e) {
@@ -63,7 +68,34 @@ export class SearchBox {
   renderTypeSelect() {
     const box = createDocumentEl("div", {
       classList: ["lce-type-select"],
+    });
+    const userBox = createDocumentEl("div", {
+      classList: ["lce-type-select-user", "lce-type-box"],
+      append: ["用户"],
+    });
+    const messageBox = createDocumentEl("div", {
+      classList: ["lce-type-select-message", "lce-type-box"],
       append: ["弹幕"],
+    });
+    console.log(this.type);
+    userBox.classList.add(
+      this.type === SearchType.user ? "lce-type-show" : "lce-type-hide",
+    );
+    messageBox.classList.add(
+      this.type === SearchType.message ? "lce-type-show" : "lce-type-hide",
+    );
+    box.append(userBox, messageBox);
+    box.addEventListener("click", () => {
+      this.type =
+        this.type === SearchType.user ? SearchType.message : SearchType.user;
+      const node =
+        this.type === SearchType.user
+          ? [userBox, messageBox]
+          : [messageBox, userBox];
+      node[0].classList.remove("lce-type-hide");
+      node[0].classList.add("lce-type-show");
+      node[1].classList.remove("lce-type-show");
+      node[1].classList.add("lce-type-hide");
     });
     this.searchBox.append(box);
   }
