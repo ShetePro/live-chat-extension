@@ -1,4 +1,4 @@
-console.log('background')
+console.log('background', 111111111111)
 // background.js
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
   if (request.action === "getURL" && request.path) {

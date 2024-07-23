@@ -1,4 +1,5 @@
 import { createDocumentEl } from "../utils/util.js";
+import i18next from "i18next";
 export const SearchType = {
   user: 1,
   message: 2,
@@ -71,11 +72,11 @@ export class SearchBox {
     });
     const userBox = createDocumentEl("div", {
       classList: ["lce-type-select-user", "lce-type-box"],
-      append: ["用户"],
+      append: [i18next.t("user")],
     });
     const messageBox = createDocumentEl("div", {
       classList: ["lce-type-select-message", "lce-type-box"],
-      append: ["弹幕"],
+      append: [i18next.t("chat")],
     });
     console.log(this.type);
     userBox.classList.add(
@@ -145,7 +146,7 @@ export class SearchBox {
     });
     const group = createDocumentEl("div", {
       classList: ["lce-btn-group"],
-      append: [previous, next, close],
+      append: [previous, next],
     });
     next.addEventListener("click", () => this.next());
     previous.addEventListener("click", () => this.previous());
