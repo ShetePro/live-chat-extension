@@ -9,13 +9,17 @@ export let i18nConfig = {
         setting: "Setting",
         user: "user",
         chat: "chat",
+        selectTextColor: "select color",
+        languages: "languages",
       },
-      cn: {
-        translation: {
-          setting: "设置",
-          user: "用户",
-          chat: "消息",
-        },
+    },
+    cn: {
+      translation: {
+        setting: "设置",
+        user: "用户",
+        chat: "消息",
+        selectTextColor: "选中颜色",
+        languages: "语言",
       },
     },
   },
@@ -26,5 +30,6 @@ export function setI18nConfig(config = {}) {
     ...i18nConfig,
     ...config,
   };
-  i18next.init(i18next);
+  i18next.init(i18nConfig);
+  console.log(i18next, "i18next init");
 }
