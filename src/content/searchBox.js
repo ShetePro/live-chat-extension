@@ -1,4 +1,4 @@
-import { createDocumentEl } from "../utils/util.js";
+import { createDocumentEl } from "../utils/util";
 import i18next from "i18next";
 export const SearchType = {
   user: 1,

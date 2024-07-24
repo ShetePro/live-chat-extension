@@ -1,7 +1,10 @@
-import { BasicIndexDb } from "/src/modules/indexDb.js";
-import { BiliBiliSearch } from "./bilibili.js";
-import { setI18nConfig } from "../locales/i8n.js";
-setI18nConfig();
+import { BasicIndexDb } from "/src/modules/indexDb";
+import { BiliBiliSearch } from "./bilibili";
+import { setI18nConfig } from "../locales/i8n";
+setI18nConfig({
+  lng: 'cn'
+});
+
 const liveData = {
   bilibili: "",
   douyu: "",

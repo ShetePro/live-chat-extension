@@ -1,4 +1,4 @@
-import { BasicIndexDb } from "../modules/indexDb.js";
+import { BasicIndexDb } from "../modules/indexDb";
 
 const indexDb = new BasicIndexDb();
 

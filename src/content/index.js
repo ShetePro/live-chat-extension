@@ -1,5 +1,5 @@
 import './index.css'
-import './content.js'
+import './content'
 // const script = document.createElement("script");
 // const link = document.createElement("link");
 // link.setAttribute("href", chrome.runtime.getURL("/src/content/index.css"));

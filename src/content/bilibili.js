@@ -1,4 +1,5 @@
 import { SearchBox, SearchType } from "./searchBox.js";
+import { ExtensionConfig } from "../config";
 
 export class BiliBiliSearch {
   constructor() {
@@ -82,9 +83,10 @@ export class BiliBiliSearch {
             : item.lastChild;
         const html = span.innerHTML;
         const regex = new RegExp(this.searchText, "g");
+        const color = ExtensionConfig.selectColor;
         span.innerHTML = html.replace(
           regex,
-          `<span style="background: #FAD7A0">${this.searchText}</span>`,
+          `<span style="background: ${color}">${this.searchText}</span>`,
         );
       });
       resolve();
