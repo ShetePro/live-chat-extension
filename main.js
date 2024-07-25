@@ -2,6 +2,7 @@ import "./popup.css";
 import { createDocumentEl } from "./src/utils/util";
 import i18next from "i18next";
 import { setI18nConfig } from "./src/locales/i8n";
+import {ExtensionConfig} from "./src/config";
 setI18nConfig();
 renderSetting();
 i18next.on("languageChanged", function (lng) {
@@ -25,6 +26,7 @@ function createColorSetting() {
   console.log(i18next);
   const color = createDocumentEl("input");
   color.type = "color";
+  color.value = ExtensionConfig.selectColor
   return renderSettingItem(i18next.t("selectTextColor"), color);
 }
 function createLanguagesSetting() {
@@ -37,10 +39,12 @@ function createLanguagesSetting() {
     const option = createDocumentEl("option", { append: [item.name] });
     option.value = item.value;
     option.name = item.name;
+    option.selected = item.value === ExtensionConfig.language
     select.append(option);
   });
   select.addEventListener("change", (e) => {
     console.log("change language", e.target.value);
+    ExtensionConfig.language = e.target.value
     setI18nConfig({
       lng: e.target.value,
     });
