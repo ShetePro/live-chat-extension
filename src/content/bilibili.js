@@ -1,5 +1,5 @@
 import { SearchBox, SearchType } from "./searchBox.js";
-import {contentConfig} from "./content";
+import { contentConfig } from "./content";
 
 export class BiliBiliSearch {
   constructor() {
@@ -34,8 +34,8 @@ export class BiliBiliSearch {
     });
     this.searchBox.renderSearch();
   }
-  destroy () {
-    this.searchBox?.remove()
+  destroy() {
+    this.searchBox?.remove();
   }
   search({ text, index = 0, type }) {
     return new Promise(async (resolve, reject) => {
@@ -79,7 +79,6 @@ export class BiliBiliSearch {
   highLight(type) {
     return new Promise((resolve) => {
       this.searchList.forEach((item) => {
-        console.log(item);
         const span =
           type === SearchType.user
             ? item.querySelector(".user-name")

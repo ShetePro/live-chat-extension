@@ -21,3 +21,22 @@ export function getConfig() {
     }
   });
 }
+// 修改配置信息
+export function setConfig(value) {
+  return new Promise((resolve, reject) => {
+    try {
+      chrome.runtime.sendMessage(
+        {
+          type: "setData",
+          key: "config",
+          value: { ...value },
+        },
+        (response) => {
+          resolve(response)
+        },
+      );
+    } catch (e) {
+      reject(e);
+    }
+  });
+}
