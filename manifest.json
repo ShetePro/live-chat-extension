@@ -1,26 +1,21 @@
 {
   "name": "Live Chat Extension",
-  "description" : "in live stream record chats",
+  "description": "in live stream record chats",
   "version": "1.0",
   "manifest_version": 3,
   "web_accessible_resources": [
     {
-      "resources": [
-        "/src/*",
-        "assets/*"
-      ],
-      "matches": [
-        "https://live.bilibili.com/*"
-      ]
+      "resources": ["/src/*", "assets/*"],
+      "matches": ["https://live.bilibili.com/*"]
     }
   ],
   "action": {
-    "default_popup": "src/index.html",
+    "default_popup": "index.html",
     "default_icon": "public/popup.png",
     "default_title": "Live Chat Extension"
   },
   "background": {
-    "service_worker": "/src/background/index.js"
+    "service_worker": "src/background/index.js"
   },
   "content_scripts": [
     {
@@ -35,5 +30,5 @@
       "run_at": "document_end"
     }
   ],
-  "permissions": ["storage","declarativeContent"]
+  "permissions": ["storage", "declarativeContent"]
 }
