@@ -1,5 +1,5 @@
 import { SearchBox, SearchType } from "./searchBox.js";
-import { ExtensionConfig } from "../config";
+import {contentConfig} from "./content";
 
 export class BiliBiliSearch {
   constructor() {
@@ -33,6 +33,9 @@ export class BiliBiliSearch {
       position: (index) => this.scrollTo(index),
     });
     this.searchBox.renderSearch();
+  }
+  destroy () {
+    this.searchBox?.remove()
   }
   search({ text, index = 0, type }) {
     return new Promise(async (resolve, reject) => {
@@ -83,7 +86,7 @@ export class BiliBiliSearch {
             : item.lastChild;
         const html = span.innerHTML;
         const regex = new RegExp(this.searchText, "g");
-        const color = ExtensionConfig.selectColor;
+        const color = contentConfig.selectColor;
         span.innerHTML = html.replace(
           regex,
           `<span style="background: ${color}">${this.searchText}</span>`,

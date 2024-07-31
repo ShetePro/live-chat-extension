@@ -183,4 +183,7 @@ export class SearchBox {
       this.renderTotal();
     });
   }
+  remove () {
+    this.searchBox?.remove();
+  }
 }

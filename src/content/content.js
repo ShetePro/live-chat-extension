@@ -1,31 +1,38 @@
 import { BasicIndexDb } from "/src/modules/indexDb";
 import { BiliBiliSearch } from "./bilibili";
 import { setI18nConfig } from "../locales/i8n";
-setI18nConfig({
-  lng: 'cn'
+import { getConfig } from "../utils/util";
+import { watchConfig } from "../utils/configWatcher";
+export let contentConfig = {};
+
+getConfig().then(({ value }) => {
+  contentConfig = value;
+  init();
 });
 
-const liveData = {
-  bilibili: "",
-  douyu: "",
-  huya: "",
-  twitch: "",
-};
+watchConfig((request) => {
+  console.log(request);
+  contentConfig = request;
+  init();
+});
+
+
+let liveControl = null;
 const indexDb = new BasicIndexDb();
-const lceSetting = {
-  current: "",
-};
-const watchConfig = { attributes: false, childList: true, subtree: false };
+function init() {
+  console.log(contentConfig, 'config 11111')
+  setI18nConfig({
+    lng: contentConfig.language,
+  });
+  biliInit();
+}
 function biliInit() {
   const biliChats = document.body.querySelector("#chat-items");
-  console.log("bili chat", biliChats);
-  const control = new BiliBiliSearch();
+  liveControl?.destroy();
+  liveControl = new BiliBiliSearch();
 }
 indexDb.init().then(() => {
   console.log("开启IndexDb监听");
-  setTimeout(() => {
-    biliInit();
-  }, 2000);
 });
 
 function activeBiliWatch() {

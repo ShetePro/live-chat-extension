@@ -31,5 +31,8 @@ export function setI18nConfig(config = {}) {
     ...config,
   };
   i18next.init(i18nConfig);
-  console.log(i18next, "i18next init");
+}
+
+export function i18Text(key) {
+  return i18next.t(key);
 }
