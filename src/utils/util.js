@@ -49,3 +49,25 @@ export function highLightText(search, text, color) {
     `<span style="background: ${color}">${search}</span>`,
   );
 }
+
+// watch chat list message push
+export function observerListPush(dom, callback) {
+  if (dom instanceof HTMLElement) {
+    const observer = new MutationObserver((mutationsList, observer) => {
+      for (let mutation of mutationsList) {
+        if (mutation.type === "childList") {
+          callback(mutation);
+        }
+      }
+    });
+    observer.observe(dom, {
+      attributes: false,
+      childList: true,
+      subtree: false,
+    });
+    return observer;
+  } else {
+    console.error("observer require is dom object");
+  }
+  return null;
+}

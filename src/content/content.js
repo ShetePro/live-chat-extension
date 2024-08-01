@@ -60,5 +60,5 @@ function activeBiliWatch() {
     }
     console.log(messageList);
   });
-  // observer.observe(biliChats, watchConfig);
+  // observer.observe(biliChats, { attributes: false, childList: true, subtree: false});
 }

@@ -1,6 +1,6 @@
 import { SearchBox, SearchType } from "./searchBox.js";
 import { contentConfig } from "./content";
-import { highLightText } from "../utils/util";
+import { highLightText, observerListPush } from "../utils/util";
 
 export class BiliBiliSearch {
   constructor() {
@@ -19,9 +19,11 @@ export class BiliBiliSearch {
       }
     }
     this.liveData = [];
+    this.observer = null;
     this.searchBox = null;
     this.searchList = [];
     this.searchText = "";
+    this.searchType = SearchType.message;
     this.searchTextTop = 0;
     this.renderSearch();
   }
@@ -41,30 +43,55 @@ export class BiliBiliSearch {
   search({ text, index = 0, type }) {
     return new Promise(async (resolve, reject) => {
       const list = this.biliChats.children;
+      this.searchType = type;
       try {
         await this.clearHighLight();
         if (text !== "") {
           this.searchText = text;
           this.searchList = [];
           for (const chat of list) {
-            const { danmaku, uname } = chat.dataset;
-            if (
-              (type === SearchType.user ? uname : danmaku)?.indexOf(text) >= 0
-            ) {
-              this.searchList.push(chat);
-            }
+            this.pushMsgBySearch(chat);
           }
+          this.watchMessage();
           // 高亮
-          this.highLight(type).then(() => {
+          this.highLight().then(() => {
             resolve({ index, total: this.searchList.length });
           });
         } else {
+          this.observer?.disconnect();
+          this.observer = null;
           this.searchText = "";
           this.searchList = [];
           resolve({ index: 0, total: 0 });
         }
       } catch (e) {
         reject(e);
+      }
+    });
+  }
+  pushMsgBySearch(msg) {
+    const { danmaku, uname } = msg.dataset;
+    if (
+      (this.searchType === SearchType.user ? uname : danmaku)?.indexOf(
+        this.searchText,
+      ) >= 0
+    ) {
+      this.searchList.push(msg);
+      return true;
+    }
+    return false;
+  }
+  watchMessage() {
+    if (this.observer) return;
+    this.observer = observerListPush(this.biliChats, (mutation) => {
+      const { target } = mutation;
+      const lastMsg = target?.lastChild;
+      const add = this.pushMsgBySearch(lastMsg);
+      if (add) {
+        // 高亮
+        this.highLightText(lastMsg);
+        this.searchBox.total++
+        this.searchBox.renderTotal()
       }
     });
   }
@@ -76,19 +103,22 @@ export class BiliBiliSearch {
       );
     return list?.querySelector(".ps__scrollbar-y-rail");
   }
-  highLight(type) {
+  highLight() {
     return new Promise((resolve) => {
       this.searchList.forEach((item) => {
-        const span =
-          type === SearchType.user
-            ? item.querySelector(".user-name")
-            : item.lastChild;
-        const html = span.innerHTML;
-        const color = contentConfig.selectColor;
-        span.innerHTML = highLightText(this.searchText, html, color);
+        this.highLightText(item);
       });
       resolve();
     });
+  }
+  highLightText(item) {
+    const span =
+      this.searchType === SearchType.user
+        ? item.querySelector(".user-name")
+        : item.lastChild;
+    const html = span.innerHTML;
+    const color = contentConfig.selectColor;
+    span.innerHTML = highLightText(this.searchText, html, color);
   }
   clearHighLight() {
     return new Promise((resolve) => {
@@ -111,11 +141,8 @@ export class BiliBiliSearch {
         return;
       }
       const scrollBar = this.getScrollBar();
-      console.log(document.querySelector(".ps__scrollbar-y"));
-      console.log(scrollBar, "scrollBar");
       this.searchTextTop = textDom.offsetTop;
       const top = this.searchTextTop - parseInt(scrollBar.style.top);
-      console.log(top, this.searchTextTop, scrollBar.style.top);
       // 创建WheelEvent对象
       const event = new WheelEvent("wheel", {
         bubbles: true,
