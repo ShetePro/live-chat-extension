@@ -1,5 +1,6 @@
 import { SearchBox, SearchType } from "./searchBox.js";
 import { contentConfig } from "./content";
+import { highLightText } from "../utils/util";
 
 export class BiliBiliSearch {
   constructor() {
@@ -39,7 +40,6 @@ export class BiliBiliSearch {
   }
   search({ text, index = 0, type }) {
     return new Promise(async (resolve, reject) => {
-      console.log(text, "search text", this.biliChats);
       const list = this.biliChats.children;
       try {
         await this.clearHighLight();
@@ -84,12 +84,8 @@ export class BiliBiliSearch {
             ? item.querySelector(".user-name")
             : item.lastChild;
         const html = span.innerHTML;
-        const regex = new RegExp(this.searchText, "g");
         const color = contentConfig.selectColor;
-        span.innerHTML = html.replace(
-          regex,
-          `<span style="background: ${color}">${this.searchText}</span>`,
-        );
+        span.innerHTML = highLightText(this.searchText, html, color);
       });
       resolve();
     });

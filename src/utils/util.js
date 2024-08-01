@@ -32,11 +32,20 @@ export function setConfig(value) {
           value: { ...value },
         },
         (response) => {
-          resolve(response)
+          resolve(response);
         },
       );
     } catch (e) {
       reject(e);
     }
   });
+}
+
+// by string return high light html
+export function highLightText(search, text, color) {
+  const regex = new RegExp(search, "g");
+  return text.replace(
+    regex,
+    `<span style="background: ${color}">${search}</span>`,
+  );
 }
