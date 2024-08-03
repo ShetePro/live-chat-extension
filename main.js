@@ -1,16 +1,21 @@
 import "./popup.css";
-import {createDocumentEl, getConfig} from "./src/utils/util";
+import { createDocumentEl, getConfig } from "./src/utils/util";
 import i18next from "i18next";
 import { setI18nConfig } from "./src/locales/i8n";
-import {createColorSetting, createLanguagesSetting, createTitle} from "./src/popup/popup";
-export let popupConfig = {}
-getConfig().then(({value}) => {
-  popupConfig = value
+import {
+  createColorSetting, createDefaultOpenSetting,
+  createLanguagesSetting,
+  createTitle,
+} from "./src/popup/popup";
+import { createSwitch } from "./src/components/switch/swtich";
+export let popupConfig = {};
+getConfig().then(({ value }) => {
+  popupConfig = value;
   setI18nConfig({
-    lng: popupConfig.language
+    lng: popupConfig.language,
   });
-  renderSetting()
-})
+  renderSetting();
+});
 i18next.on("languageChanged", function (lng) {
   renderSetting();
 });
@@ -22,11 +27,15 @@ function renderSetting() {
   }
   const list = createDocumentEl("div", {
     classList: ["setting-list"],
-    append: [createTitle(), createColorSetting(), createLanguagesSetting()],
+    append: [
+      createTitle(),
+      createDefaultOpenSetting(),
+      createColorSetting(),
+      createLanguagesSetting(),
+    ],
   });
   main.append(list);
 }
-
 
 function changeLanguage(e) {
   console.log(e);

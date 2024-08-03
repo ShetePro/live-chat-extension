@@ -7,10 +7,12 @@ export let i18nConfig = {
     en: {
       translation: {
         setting: "Setting",
-        user: "user",
-        chat: "chat",
-        selectTextColor: "select color",
-        languages: "languages",
+        user: "User",
+        chat: "Chat",
+        selectTextColor: "Select color",
+        languages: "Languages",
+        isDefaultOpen: "Enabled by default",
+        isOpen: "Is enabled",
       },
     },
     cn: {
@@ -20,6 +22,8 @@ export let i18nConfig = {
         chat: "消息",
         selectTextColor: "选中颜色",
         languages: "语言",
+        isDefaultOpen: "默认开启",
+        isOpen: "是否打开",
       },
     },
   },

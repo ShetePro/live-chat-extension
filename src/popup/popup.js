@@ -2,11 +2,21 @@ import { createDocumentEl, setConfig } from "../utils/util";
 import { ExtensionConfig } from "../background/config";
 import { i18Text, setI18nConfig } from "../locales/i8n";
 import { popupConfig } from "../../main";
+import { createSwitch } from "../components/switch/swtich";
 export function createTitle() {
   return createDocumentEl("div", {
     classList: ["title"],
     append: [i18Text("setting")],
   });
+}
+export function createDefaultOpenSetting() {
+  const switchBox = createSwitch(popupConfig.isOpen, {
+    change: (e) => {
+      popupConfig.isOpen = e.target.checked;
+      setConfig(popupConfig);
+    },
+  });
+  return renderSettingItem(i18Text("isOpen"), switchBox);
 }
 export function createColorSetting() {
   const color = createDocumentEl("input");
