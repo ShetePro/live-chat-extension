@@ -5,19 +5,6 @@ import { highLightText, observerListPush } from "../utils/util";
 export class BiliBiliSearch {
   constructor() {
     this.iframe = null;
-    this.biliChats = document.querySelector("#chat-items");
-    // biliBili有些活动会使用iframe 嵌套直播间
-    if (!this.biliChats) {
-      const iframes = document.body.querySelectorAll("iframe");
-      for (const iframe of iframes) {
-        const list =
-          iframe.contentDocument?.activeElement?.querySelector("#chat-items");
-        this.biliChats = this.biliChats || list;
-        if (list) {
-          this.iframe = iframe;
-        }
-      }
-    }
     this.liveData = [];
     this.observer = null;
     this.searchBox = null;
@@ -25,7 +12,25 @@ export class BiliBiliSearch {
     this.searchText = "";
     this.searchType = SearchType.message;
     this.searchTextTop = 0;
-    this.renderSearch();
+    this.biliChats = document.querySelector("#chat-items");
+    // biliBili有些活动会使用iframe 嵌套直播间
+    if (!this.biliChats) {
+      const iframes = document.body.querySelectorAll("iframe");
+      for (const iframe of iframes) {
+        if (iframe.contentDocument) {
+          iframe.addEventListener("load", () => {
+            const list = iframe.contentDocument?.querySelector("#chat-items");
+            if (list) {
+              this.biliChats = list;
+              this.iframe = iframe;
+              this.renderSearch();
+            }
+          });
+        }
+      }
+    } else {
+      this.renderSearch();
+    }
   }
   renderSearch() {
     const { bottom, left, width, top } = this.biliChats.getBoundingClientRect();
@@ -90,8 +95,8 @@ export class BiliBiliSearch {
       if (add) {
         // 高亮
         this.highLightText(lastMsg);
-        this.searchBox.total++
-        this.searchBox.renderTotal()
+        this.searchBox.total++;
+        this.searchBox.renderTotal();
       }
     });
   }

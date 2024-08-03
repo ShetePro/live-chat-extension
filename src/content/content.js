@@ -4,12 +4,12 @@ import { setI18nConfig } from "../locales/i8n";
 import { getConfig } from "../utils/util";
 import { watchConfig } from "../utils/configWatcher";
 export let contentConfig = {};
-
+let liveControl = null;
+const indexDb = new BasicIndexDb();
 getConfig().then(({ value }) => {
   contentConfig = value;
   init();
 });
-
 watchConfig((request) => {
   console.log(request);
   contentConfig = request;
@@ -17,17 +17,14 @@ watchConfig((request) => {
 });
 
 
-let liveControl = null;
-const indexDb = new BasicIndexDb();
 function init() {
-  console.log(contentConfig, 'config 11111')
+  console.log(contentConfig, "config 11111");
   setI18nConfig({
     lng: contentConfig.language,
   });
   biliInit();
 }
 function biliInit() {
-  const biliChats = document.body.querySelector("#chat-items");
   liveControl?.destroy();
   liveControl = new BiliBiliSearch();
 }
