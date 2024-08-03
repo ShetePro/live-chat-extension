@@ -1,0 +1,52 @@
+/* 样式开关容器 */
+.switch {
+  position: relative;
+  display: inline-block;
+  --width: 50px;
+  --height: 26px;
+  width: var(--width);
+  height: var(--height);
+}
+
+/* 隐藏实际的复选框 */
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* 创建滑块 */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.4s;
+  border-radius: var(--height);
+}
+
+/* 滑块的圆圈 */
+.slider:before {
+  position: absolute;
+  content: "";
+  width: calc(var(--height) - 8px);
+  height: calc(var(--height) - 8px);
+  left: 4px;
+  top: 4px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+/* 滑块开启状态 */
+input:checked + .slider {
+  background-color: #2196f3;
+}
+
+/* 滑块的圆圈在开启状态时的位置 */
+input:checked + .slider:before {
+  transform: translateX(calc(var(--width) - var(--height)));
+}
