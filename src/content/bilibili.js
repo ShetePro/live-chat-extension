@@ -16,23 +16,36 @@ export class BiliBiliSearch {
     // biliBili有些活动会使用iframe 嵌套直播间
     if (!this.biliChats) {
       const iframes = document.body.querySelectorAll("iframe");
+      console.log(iframes, "111111111111111");
       for (const iframe of iframes) {
-        if (iframe.contentDocument) {
-          iframe.addEventListener("load", () => {
-            const list = iframe.contentDocument?.querySelector("#chat-items");
-            if (list) {
-              this.biliChats = list;
-              this.iframe = iframe;
-              this.renderSearch();
-            }
-          });
+        let list = iframe.contentDocument?.querySelector("#chat-items");
+        if (list) {
+          this.biliChats = list;
+          this.iframe = iframe;
+          this.renderSearch();
+        } else {
+          this.awaitIframeLoad(iframe);
         }
       }
     } else {
       this.renderSearch();
     }
   }
+  awaitIframeLoad(iframe) {
+    if (iframe.contentDocument) {
+      iframe.addEventListener("load", () => {
+        const list = iframe.contentDocument?.querySelector("#chat-items");
+        console.log("iframe loaded", list);
+        if (list) {
+          this.biliChats = list;
+          this.iframe = iframe;
+          this.renderSearch();
+        }
+      });
+    }
+  }
   renderSearch() {
+    console.log("renderSearch");
     const { bottom, left, width, top } = this.biliChats.getBoundingClientRect();
     this.searchBox = new SearchBox({
       x: left + width,

@@ -16,13 +16,16 @@ watchConfig((request) => {
   init();
 });
 
-
 function init() {
   console.log(contentConfig, "config 11111");
   setI18nConfig({
     lng: contentConfig.language,
   });
-  biliInit();
+  if (contentConfig.isOpen) {
+    biliInit();
+  } else {
+    liveControl?.destroy();
+  }
 }
 function biliInit() {
   liveControl?.destroy();
