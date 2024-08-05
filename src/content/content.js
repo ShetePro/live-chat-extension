@@ -3,6 +3,9 @@ import { BiliBiliSearch } from "./bilibili";
 import { setI18nConfig } from "../locales/i8n";
 import { getConfig } from "../utils/util";
 import { watchConfig } from "../utils/configWatcher";
+
+console.log('content 内容脚本启动+++++++++++++++++++++++++')
+console.log('content 内容脚本启动+++++++++++++++++++++++++')
 export let contentConfig = {};
 let liveControl = null;
 const indexDb = new BasicIndexDb();

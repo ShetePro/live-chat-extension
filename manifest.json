@@ -6,7 +6,7 @@
   "web_accessible_resources": [
     {
       "resources": ["/src/*", "assets/*"],
-      "matches": ["https://live.bilibili.com/*"]
+      "matches": ["https://live.bilibili.com/*", "https://www.huya.com/*"]
     }
   ],
   "action": {
@@ -23,7 +23,7 @@
         "https://live.bilibili.com/*",
         "https://www.twitch.tv/*",
         "https://www.douyu.com/*",
-        "https://www.huya.com/"
+        "https://www.huya.com/*"
       ],
       "type": "module",
       "js": ["/src/content/index.js"],
