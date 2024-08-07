@@ -1,6 +1,6 @@
+import './index.css'
 import { SearchBox, SearchType } from "./searchBox.js";
 import {getConfig, highLightText, observerListPush} from "../utils/util";
-import './index.css'
 import {watchConfig} from "../utils/configWatcher";
 import {setI18nConfig} from "../locales/i8n";
 
@@ -11,7 +11,6 @@ getConfig().then(({ value }) => {
   init();
 });
 watchConfig((request) => {
-  console.log(request);
   contentConfig = request;
   init();
 });
@@ -29,10 +28,9 @@ function init() {
 function searchInit() {
   liveControl?.destroy();
   console.log(location.href)
-  liveControl = new BiliBiliSearch();
+  liveControl = new HuyaSearch();
 }
-
-class BiliBiliSearch {
+export class HuyaSearch {
   constructor() {
     this.iframe = null;
     this.liveData = [];
@@ -42,14 +40,14 @@ class BiliBiliSearch {
     this.searchText = "";
     this.searchType = SearchType.message;
     this.searchTextTop = 0;
-    this.biliChats = document.querySelector("#chat-items");
+    this.chatListDom = document.querySelector("#chat-room__list");
     // biliBili有些活动会使用iframe 嵌套直播间
-    if (!this.biliChats) {
+    if (!this.chatListDom) {
       const iframes = document.body.querySelectorAll("iframe");
       for (const iframe of iframes) {
-        let list = iframe.contentDocument?.querySelector("#chat-items");
+        let list = iframe.contentDocument?.querySelector("#chat-room__list");
         if (list) {
-          this.biliChats = list;
+          this.chatListDom = list;
           this.iframe = iframe;
           this.renderSearch();
         } else {
@@ -63,9 +61,9 @@ class BiliBiliSearch {
   awaitIframeLoad(iframe) {
     if (iframe.contentDocument) {
       iframe.addEventListener("load", () => {
-        const list = iframe.contentDocument?.querySelector("#chat-items");
+        const list = iframe.contentDocument?.querySelector("#chat-room__list");
         if (list) {
-          this.biliChats = list;
+          this.chatListDom = list;
           this.iframe = iframe;
           this.renderSearch();
         }
@@ -73,11 +71,11 @@ class BiliBiliSearch {
     }
   }
   renderSearch() {
-    console.log("renderSearch");
-    const { bottom, left, width, top } = this.biliChats.getBoundingClientRect();
+    const { bottom, left, width, top } = this.chatListDom.getBoundingClientRect();
+    console.log("renderSearch", this.chatListDom);
     this.searchBox = new SearchBox({
-      x: left + width,
-      y: bottom + top + 100,
+      x: 200,
+      y: 100,
       searchCallback: (data) => this.search(data),
       position: (index) => this.scrollTo(index),
     });
@@ -88,7 +86,7 @@ class BiliBiliSearch {
   }
   search({ text, index = 0, type }) {
     return new Promise(async (resolve, reject) => {
-      const list = this.biliChats.children;
+      const list = this.chatListDom.children;
       this.searchType = type;
       try {
         await this.clearHighLight();
@@ -116,9 +114,10 @@ class BiliBiliSearch {
     });
   }
   pushMsgBySearch(msg) {
-    const { danmaku, uname } = msg.dataset;
+    const name = msg.querySelector('.name')?.innerText
+    const text = msg.querySelector('.msg')?.innerText
     if (
-      (this.searchType === SearchType.user ? uname : danmaku)?.indexOf(
+      (this.searchType === SearchType.user ? name : text)?.indexOf(
         this.searchText,
       ) >= 0
     ) {
@@ -129,7 +128,7 @@ class BiliBiliSearch {
   }
   watchMessage() {
     if (this.observer) return;
-    this.observer = observerListPush(this.biliChats, (mutation) => {
+    this.observer = observerListPush(this.chatListDom, (mutation) => {
       const { target } = mutation;
       const lastMsg = target?.lastChild;
       const add = this.pushMsgBySearch(lastMsg);
@@ -143,11 +142,12 @@ class BiliBiliSearch {
   }
   getScrollBar() {
     const list =
-      document.body.querySelector("#chat-history-list") ||
-      this.iframe.contentDocument?.activeElement?.querySelector(
-        "#chat-history-list",
+      document.body.querySelector("#chatRoom") ||
+      this.iframe.contentDocument?.querySelector(
+        "#chatRoom",
       );
-    return list?.querySelector(".ps__scrollbar-y-rail");
+    console.log(list)
+    return list?.querySelector(".scroll_move");
   }
   highLight() {
     return new Promise((resolve) => {
@@ -188,16 +188,19 @@ class BiliBiliSearch {
       }
       const scrollBar = this.getScrollBar();
       this.searchTextTop = textDom.offsetTop;
-      const top = this.searchTextTop - parseInt(scrollBar.style.top);
+      
+      console.log(this.chatListDom.clientHeight)
+      const top = isNaN(parseInt(scrollBar.style.top)) ? 0 : parseInt(scrollBar.style.top);
       // 创建WheelEvent对象
       const event = new WheelEvent("wheel", {
         bubbles: true,
         cancelable: true,
         deltaX: 0,
-        deltaY: top, // 向上滚动
+        deltaY: -100, // 向上滚动
         deltaMode: WheelEvent.DOM_DELTA_PIXEL,
       });
-      this.biliChats.dispatchEvent(event);
+      console.log(textDom)
+      this.chatListDom.dispatchEvent(event);
       resolve();
     });
   }

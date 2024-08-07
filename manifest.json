@@ -19,14 +19,27 @@
   },
   "content_scripts": [
     {
-      "matches": [
-        "https://live.bilibili.com/*",
-        "https://www.twitch.tv/*",
-        "https://www.douyu.com/*",
-        "https://www.huya.com/*"
-      ],
+      "matches": ["https://live.bilibili.com/*"],
       "type": "module",
-      "js": ["/src/content/index.js"],
+      "js": ["/src/content/bilibili.js"],
+      "run_at": "document_end"
+    },
+    {
+      "matches": ["https://www.huya.com/*"],
+      "type": "module",
+      "js": ["/src/content/huya.js"],
+      "run_at": "document_end"
+    },
+    {
+      "matches": ["https://www.douyu.com/*"],
+      "type": "module",
+      "js": ["/src/content/huya.js"],
+      "run_at": "document_end"
+    },
+    {
+      "matches": ["https://www.twitch.tv/*"],
+      "type": "module",
+      "js": ["/src/content/huya.js"],
       "run_at": "document_end"
     }
   ],
