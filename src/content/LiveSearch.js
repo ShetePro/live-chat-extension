@@ -1,5 +1,9 @@
 import { SearchBox, SearchType } from "./searchBox";
-import { highLightText, observerListPush } from "../utils/util";
+import {
+  createDocumentEl,
+  highLightText,
+  observerListPush,
+} from "../utils/util";
 import { BasicIndexDb } from "../modules/indexDb";
 
 export class LiveSearch {
@@ -165,10 +169,18 @@ export class LiveSearch {
       this.searchType === SearchType.user
         ? this.getNameSpanByMsg(item)
         : this.getChatSpanByMsg(item);
-    const html = span.innerHTML;
-    const color = this.contentConfig.selectColor;
-    span.dataset.originText = span.innerHTML;
-    span.innerHTML = highLightText(this.searchText, html, color);
+    for (const node of span.childNodes) {
+      // 只检索textNode 忽略表情元素
+      if (node.nodeType === 3) {
+        const highLightSpan = createDocumentEl("span");
+        const text = node.textContent;
+        const color = this.contentConfig.selectColor;
+        highLightSpan.innerHTML = highLightText(this.searchText, text, color);
+        highLightSpan.dataset.originText = text;
+        // 替换原来的textNode 为 高亮后的span 元素
+        span.replaceChild(highLightSpan, node);
+      }
+    }
   }
   // 自定义取消高亮
   clearHighLight() {
@@ -178,7 +190,11 @@ export class LiveSearch {
           this.searchType === SearchType.user
             ? this.getNameSpanByMsg(item)
             : this.getChatSpanByMsg(item);
-        span.innerHTML = span.dataset.originText;
+        const highLightList = span.querySelectorAll("[data-origin-text]");
+        highLightList.forEach((node) => {
+          const textNode = document.createTextNode(node.dataset.originText);
+          span.replaceChild(textNode, node);
+        });
       });
       resolve();
     });
