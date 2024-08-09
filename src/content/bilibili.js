@@ -1,9 +1,10 @@
-import { SearchBox, SearchType } from "./searchBox.js";
-import {getConfig, highLightText, observerListPush} from "../utils/util";
-import './index.css'
-import {watchConfig} from "../utils/configWatcher";
-import {setI18nConfig} from "../locales/i8n";
-import {LiveSearch} from "./LiveSearch";
+import { SearchType } from "./searchBox.js";
+import { getConfig } from "../utils/util";
+import "./index.css";
+import { watchConfig } from "../utils/configWatcher";
+import { setI18nConfig } from "../locales/i8n";
+import { LiveSearch } from "./LiveSearch";
+import { SiteType } from "../utils/enum";
 
 let contentConfig = {};
 let liveControl = null;
@@ -29,16 +30,18 @@ function init() {
 }
 function searchInit() {
   liveControl?.destroy();
-  console.log(location.href)
+  console.log(location.href);
   liveControl = new BiliBiliSearch(contentConfig);
 }
 
-class BiliBiliSearch extends LiveSearch{
+class BiliBiliSearch extends LiveSearch {
   constructor(config) {
-    super(config)
+    super(config);
     this.listSelector = "#chat-items";
     this.chatListDom = document.querySelector(this.listSelector);
-    this.init()
+    this.siteType = SiteType.bilibili;
+    this.liveId = this.href[0];
+    this.init();
   }
   search({ text, index = 0, type }) {
     return new Promise(async (resolve, reject) => {
@@ -47,12 +50,19 @@ class BiliBiliSearch extends LiveSearch{
       try {
         await this.clearHighLight();
         if (text !== "") {
+          this.indexDb.getPageBySiteType({
+            pageIndex: 1,
+            pageSize: 10,
+            siteType: this.siteType,
+            liveId: this.liveId,
+          }).then((res) => {
+            console.log(res)
+          });
           this.searchText = text;
           this.searchList = [];
           for (const chat of list) {
             this.pushMsgBySearch(chat);
           }
-          this.watchMessage();
           // 高亮
           this.highLight().then(() => {
             resolve({ index, total: this.searchList.length });
@@ -81,12 +91,25 @@ class BiliBiliSearch extends LiveSearch{
     }
     return false;
   }
+  pushMsgDatabase(msg) {
+    const liveName = document.querySelector(".room-owner-username")?.title;
+    const name = this.getNameSpanByMsg(msg)?.innerText.slice(0, -1);
+    const text = this.getChatSpanByMsg(msg)?.innerText;
+    text && this.indexDb?.push({
+      user: name,
+      text,
+      timestamp: new Date().getTime(),
+      siteType: this.siteType,
+      liveId: this.liveId,
+      liveName,
+    });
+  }
   getNameSpanByMsg(msg) {
-    return msg.querySelector('.user-name')
+    return msg.querySelector(".user-name");
   }
   // 获取内容span
   getChatSpanByMsg(msg) {
-    return msg.querySelector('.danmaku-item-right')
+    return msg.querySelector(".danmaku-item-right");
   }
   getScrollBar() {
     const list =

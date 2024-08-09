@@ -1,5 +1,6 @@
 import { SearchBox, SearchType } from "./searchBox";
 import { highLightText, observerListPush } from "../utils/util";
+import { BasicIndexDb } from "../modules/indexDb";
 
 export class LiveSearch {
   constructor(config) {
@@ -14,6 +15,8 @@ export class LiveSearch {
     this.searchTextTop = 0;
     this.chatListDom = null;
     this.listSelector = "";
+    this.indexDb = new BasicIndexDb();
+    this.href = location.href.split("/")?.at(-1).split("?");
   }
   init() {
     // biliBili有些活动会使用iframe 嵌套直播间
@@ -32,6 +35,11 @@ export class LiveSearch {
     } else {
       this.renderSearch();
     }
+    this.indexDb.init().then(() => {
+      // watch chat list push msg
+      console.log("开启IndexDb监听");
+      this.watchMessage();
+    });
   }
   awaitIframeLoad(iframe) {
     if (iframe.contentDocument) {
@@ -46,7 +54,8 @@ export class LiveSearch {
     }
   }
   renderSearch() {
-    const { bottom, left, width, top } = this.chatListDom.getBoundingClientRect();
+    const { bottom, left, width, top } =
+      this.chatListDom.getBoundingClientRect();
     this.searchBox = new SearchBox({
       x: left + width,
       y: bottom + 100,
@@ -57,6 +66,7 @@ export class LiveSearch {
   }
   destroy() {
     this.searchBox?.remove();
+    this.indexDb = null;
   }
   search({ text, index = 0, type }) {
     return new Promise(async (resolve, reject) => {
@@ -70,7 +80,6 @@ export class LiveSearch {
           for (const chat of list) {
             this.pushMsgBySearch(chat);
           }
-          this.watchMessage();
           // 高亮
           this.highLight().then(() => {
             resolve({ index, total: this.searchList.length });
@@ -103,16 +112,37 @@ export class LiveSearch {
   watchMessage() {
     if (this.observer) return;
     this.observer = observerListPush(this.chatListDom, (mutation) => {
-      const { target } = mutation;
-      const lastMsg = target?.lastChild;
-      const add = this.pushMsgBySearch(lastMsg);
-      if (add) {
-        // 高亮
-        this.highLightMsg(lastMsg);
-        this.searchBox.total++;
-        this.searchBox.renderTotal();
+      const { addedNodes } = mutation;
+      const lastMsg = addedNodes[0];
+      if (this.searchText) {
+        const add = this.pushMsgBySearch(lastMsg);
+        if (add) {
+          // 高亮
+          this.highLightMsg(lastMsg);
+          this.searchBox.total++;
+          this.searchBox.renderTotal();
+        }
       }
+      // 默认将聊天内容记录在indexDb
+      this.pushMsgDatabase(lastMsg);
     });
+  }
+  pushMsgDatabase(msg) {
+    let anchor = "",
+      text,
+      type,
+      time = new Date().getTime(),
+      liveId = "",
+      liveName = "";
+    text &&
+      this.indexDb?.push({
+        user: anchor,
+        text,
+        timestamp: time,
+        siteType: type,
+        liveId,
+        liveName,
+      });
   }
   getScrollBar() {
     const list =
