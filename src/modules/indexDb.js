@@ -56,7 +56,7 @@ export class BasicIndexDb {
     text = "",
   }) {
     return new Promise((resolve, reject) => {
-      let keyRange = IDBKeyRange.only([siteType, liveId, text]);
+      let keyRange = IDBKeyRange.only([siteType, liveId]);
       let transaction = this.indexDb.transaction("message");
       let objectStore = transaction.objectStore("message");
       let index = objectStore.index("listType"); //索引的意义在于，可以让你搜索任意字段，也就是说从任意字段拿到数据记录
@@ -72,12 +72,14 @@ export class BasicIndexDb {
       let count = 0;
       request.onsuccess = function (e) {
         let cursor = event.target.result;
-        console.log(cursor);
         if (cursor) {
           if (count >= start && count < end) {
-            result.push(cursor.value);
+            const { value } = cursor;
+            if (value.text.indexOf(text) >= 0) {
+              result.push(cursor.value);
+              count++;
+            }
           }
-          count++;
           if (count < end) {
             cursor.continue();
           } else {
