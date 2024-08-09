@@ -1,5 +1,6 @@
 import { createDocumentEl } from "../utils/util";
 import i18next from "i18next";
+import { SearchPanel } from "./searchPanel";
 export const SearchType = {
   user: 1,
   message: 2,
@@ -40,6 +41,8 @@ export class SearchBox {
     console.log("显示直播弹幕查询");
     const box = document.createElement("div");
     box.classList.add("lce-search-box");
+    const searchPanel = new SearchPanel();
+    box.append(searchPanel.create());
     document.body.append(box);
     this.searchBox = box;
     this.setStyle();
@@ -57,13 +60,13 @@ export class SearchBox {
           x: e.x - left,
           y: e.y - top,
         };
-        document.body.addEventListener("mouseover", moveCallback);
+        document.body.addEventListener("mousemove", moveCallback);
       },
       true,
     );
     // 取消拖拽事件
     document.body.addEventListener("mouseup", () => {
-      document.body.removeEventListener("mouseover", moveCallback);
+      document.body.removeEventListener("mousemove", moveCallback);
     });
   }
   renderTypeSelect() {
@@ -170,20 +173,18 @@ export class SearchBox {
     );
   }
   next() {
-    console.log("next", this);
     this.index = this.index >= this.total ? 1 : this.index + 1;
     this.position?.(this.index).then(() => {
       this.renderTotal();
     });
   }
   previous() {
-    console.log("previous", this);
     this.index = this.index <= 1 ? this.total : this.index - 1;
     this.position?.(this.index).then(() => {
       this.renderTotal();
     });
   }
-  remove () {
+  remove() {
     this.searchBox?.remove();
   }
 }
