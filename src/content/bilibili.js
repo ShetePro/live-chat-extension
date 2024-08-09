@@ -55,6 +55,7 @@ class BiliBiliSearch extends LiveSearch {
             pageSize: 10,
             siteType: this.siteType,
             liveId: this.liveId,
+            text
           }).then((res) => {
             console.log(res)
           });

@@ -19,6 +19,7 @@ export class SearchBox {
     this.searchBox = null;
     this.searchCallback = opt.searchCallback;
     this.position = opt.position;
+    this.searchPanel = new SearchPanel();
     console.log(opt, SearchType);
   }
   // 拖拽事件
@@ -41,8 +42,7 @@ export class SearchBox {
     console.log("显示直播弹幕查询");
     const box = document.createElement("div");
     box.classList.add("lce-search-box");
-    const searchPanel = new SearchPanel();
-    box.append(searchPanel.create());
+    box.append(this.searchPanel.create());
     document.body.append(box);
     this.searchBox = box;
     this.setStyle();
@@ -163,6 +163,12 @@ export class SearchBox {
     }
   }
   search() {
+    console.log(this.searchPanel);
+    if (this.searchText) {
+      this.searchPanel.show();
+    } else {
+      this.searchPanel.hide();
+    }
     this.searchCallback({ text: this.searchText, type: this.type }).then(
       ({ index, total }) => {
         this.index = index;
