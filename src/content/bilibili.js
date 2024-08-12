@@ -69,7 +69,6 @@ class BiliBiliSearch extends LiveSearch {
             resolve({ index, total: this.searchList.length });
           });
         } else {
-          this.observer?.disconnect();
           this.observer = null;
           this.searchText = "";
           this.searchList = [];

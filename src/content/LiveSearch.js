@@ -74,6 +74,7 @@ export class LiveSearch {
   }
   destroy() {
     this.searchBox?.remove();
+    this.observer?.disconnect();
     this.indexDb = null;
   }
   search({ text, index = 0, type }) {
@@ -93,7 +94,6 @@ export class LiveSearch {
             resolve({ index, total: this.searchList.length });
           });
         } else {
-          this.observer?.disconnect();
           this.observer = null;
           this.searchText = "";
           this.searchList = [];
@@ -142,6 +142,7 @@ export class LiveSearch {
       time = new Date().getTime(),
       liveId = "",
       liveName = "";
+    text = this.getChatSpanByMsg(msg).textContent
     text &&
       this.indexDb?.push({
         user: anchor,
