@@ -90,8 +90,7 @@ export class BasicIndexDb {
             resolve(result);
           }
         } else {
-          console.log("readSourceLibRecord 未获得数据记录");
-          resolve(null);
+          resolve(result);
         }
       };
     });
@@ -100,18 +99,18 @@ export class BasicIndexDb {
     // 获取所有对象存储的名称
     const objectStoreNames = Array.from(this.indexDb.objectStoreNames);
     // 开启事务并删除所有对象存储的数据
-    objectStoreNames.forEach(storeName => {
-      const transaction = this.indexDb.transaction(storeName, 'readwrite');
+    objectStoreNames.forEach((storeName) => {
+      const transaction = this.indexDb.transaction(storeName, "readwrite");
       const objectStore = transaction.objectStore(storeName);
-      
+
       const clearRequest = objectStore.clear();
-      
+
       clearRequest.onsuccess = function () {
-        console.log(`Cleared object store: ${storeName}`);
+        console.log(`清理数据库: ${storeName}`);
       };
-      
+
       clearRequest.onerror = function (event) {
-        console.error(`Failed to clear object store: ${storeName}`, event);
+        console.error(`数据库清理失败: ${storeName}`, event);
       };
     });
   }
