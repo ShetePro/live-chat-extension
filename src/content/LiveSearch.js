@@ -21,6 +21,10 @@ export class LiveSearch {
     this.listSelector = "";
     this.indexDb = new BasicIndexDb();
     this.href = location.href.split("/")?.at(-1).split("?");
+    window.addEventListener('beforeunload',  (event) => {
+      // 清空 IndexedDB 记录的聊天数据
+      this.indexDb?.clear();
+    });
   }
   init() {
     // biliBili有些活动会使用iframe 嵌套直播间
