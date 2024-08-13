@@ -50,15 +50,6 @@ class BiliBiliSearch extends LiveSearch {
       try {
         await this.clearHighLight();
         if (text !== "") {
-          this.indexDb.getPageBySiteType({
-            pageIndex: 1,
-            pageSize: 10,
-            siteType: this.siteType,
-            liveId: this.liveId,
-            text
-          }).then((res) => {
-            console.log(res)
-          });
           this.searchText = text;
           this.searchList = [];
           for (const chat of list) {

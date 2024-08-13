@@ -20,11 +20,16 @@ export class LiveSearch {
     this.chatListDom = null;
     this.listSelector = "";
     this.indexDb = new BasicIndexDb();
+    this.liveId = "";
+    this.siteType = "";
     this.href = location.href.split("/")?.at(-1).split("?");
-    window.addEventListener('beforeunload',  (event) => {
-      // 清空 IndexedDB 记录的聊天数据
-      this.indexDb?.clear();
-    });
+    // window.addEventListener("beforeunload", (event) => {
+    //   // 清空该直播间 IndexedDB 记录的聊天数据
+    //   this.indexDb?.clearBySearch({
+    //     siteType: this.siteType,
+    //     liveId: this.liveId,
+    //   });
+    // });
   }
   init() {
     // biliBili有些活动会使用iframe 嵌套直播间
@@ -65,8 +70,11 @@ export class LiveSearch {
     const { bottom, left, width, top } =
       this.chatListDom.getBoundingClientRect();
     this.searchBox = new SearchBox({
+      indexDb: this.indexDb,
       x: left + width,
       y: bottom + 100,
+      liveId: this.liveId,
+      siteType: this.siteType,
       searchCallback: (data) => this.search(data),
       position: (index) => this.scrollTo(index),
     });
@@ -136,13 +144,13 @@ export class LiveSearch {
     });
   }
   pushMsgDatabase(msg) {
-    let anchor = "",
+    let anchor = this.getNameSpanByMsg(msg)?.innerText.slice(0, -1),
       text,
       type,
       time = new Date().getTime(),
       liveId = "",
       liveName = "";
-    text = this.getChatSpanByMsg(msg).textContent
+    text = this.getChatSpanByMsg(msg).textContent;
     text &&
       this.indexDb?.push({
         user: anchor,

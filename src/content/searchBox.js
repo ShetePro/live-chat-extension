@@ -7,7 +7,9 @@ export const SearchType = {
 };
 export class SearchBox {
   constructor(opt) {
+    this.option = opt;
     this.isSearch = false;
+    this.indexDb = opt.indexDb;
     this.searchText = "";
     this.index = 0;
     this.total = 0;
@@ -164,16 +166,30 @@ export class SearchBox {
   }
   search() {
     console.log(this.searchPanel);
-    if (this.searchText) {
-      this.searchPanel.show();
-    } else {
-      this.searchPanel.hide();
-    }
+    // 数据库查询逻辑
+    this.indexDb
+      .getPageBySiteType({
+        pageIndex: 1,
+        pageSize: 10,
+        siteType: this.option.siteType,
+        liveId: this.option.liveId,
+        text: this.searchText,
+      })
+      .then((res) => {
+        console.log(res);
+        if (this.searchText) {
+          this.searchPanel.show(res);
+        } else {
+          this.searchPanel.hide();
+        }
+      });
+    // dom查询逻辑
     this.searchCallback({ text: this.searchText, type: this.type }).then(
-      ({ index, total }) => {
+      ({ index, total, messages }) => {
         this.index = index;
         this.total = total;
         this.renderTotal();
+
         console.log("收到", index, total);
       },
     );
