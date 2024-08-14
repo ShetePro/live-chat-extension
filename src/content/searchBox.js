@@ -21,7 +21,11 @@ export class SearchBox {
     this.searchBox = null;
     this.searchCallback = opt.searchCallback;
     this.position = opt.position;
-    this.searchPanel = new SearchPanel();
+    this.searchPanel = new SearchPanel({
+      onNext: (params) => {
+        return this.searchByIndexedDB.call(this, params);
+      },
+    });
     console.log(opt, SearchType);
   }
   // 拖拽事件
@@ -164,26 +168,33 @@ export class SearchBox {
       this.search();
     }
   }
+  searchByIndexedDB({ pageIndex = 1, pageSize = 20 }) {
+    return new Promise((resolve, reject) => {
+      // 数据库查询逻辑
+      this.indexDb
+        ?.getPageBySiteType({
+          pageIndex,
+          pageSize,
+          siteType: this.option.siteType,
+          liveId: this.option.liveId,
+          text: this.searchText,
+          type: this.type,
+        })
+        .then((res) => {
+          resolve(res);
+        })
+        .catch((e) => {
+          reject(e);
+        });
+    });
+  }
   search() {
-    console.log(this.searchPanel);
-    // 数据库查询逻辑
-    this.indexDb
-      .getPageBySiteType({
-        pageIndex: 1,
-        pageSize: 10,
-        siteType: this.option.siteType,
-        liveId: this.option.liveId,
-        text: this.searchText,
-        type: this.type
-      })
-      .then((res) => {
-        console.log(res);
-        if (this.searchText) {
-          this.searchPanel.show(res);
-        } else {
-          this.searchPanel.hide();
-        }
-      });
+    // 数据库查询
+    if (this.searchText) {
+      this.searchPanel.show();
+    } else {
+      this.searchPanel.hide();
+    }
     // dom查询逻辑
     this.searchCallback({ text: this.searchText, type: this.type }).then(
       ({ index, total, messages }) => {
@@ -194,6 +205,7 @@ export class SearchBox {
         console.log("收到", index, total);
       },
     );
+    
   }
   next() {
     this.index = this.index >= this.total ? 1 : this.index + 1;

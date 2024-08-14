@@ -3,6 +3,7 @@ import { SearchType } from "../content/searchBox";
 export class BasicIndexDb {
   constructor() {
     this.objectStoreNames = "message";
+    this.idIndex = "";
   }
   init() {
     return new Promise((resolve, reject) => {
@@ -48,7 +49,6 @@ export class BasicIndexDb {
         .add(item);
       request.onsuccess = (event) => {
         resolve(event.target.result);
-        console.log(item, "push");
       };
       request.onerror = (event) => {
         reject(event);
@@ -60,7 +60,7 @@ export class BasicIndexDb {
     pageIndex,
     pageSize,
     siteType,
-    liveId = "5194110",
+    liveId = "",
     text = "",
     type = SearchType.message,
   }) {
@@ -79,22 +79,29 @@ export class BasicIndexDb {
       const start = (pageIndex - 1) * pageSize;
       const end = pageIndex * pageSize;
       let count = 0;
+      let skipCount = (pageIndex - 1) * pageSize;
       request.onsuccess = function (e) {
         let cursor = event.target.result;
         if (cursor) {
-          if (count >= start && count < end) {
-            const { value } = cursor;
-            const content =
-              type === SearchType.message ? value.text : value.user;
-            if (content.indexOf(text) >= 0) {
+          const { value } = cursor;
+          const content = type === SearchType.message ? value.text : value.user;
+          if (content.indexOf(text) >= 0) {
+            if (skipCount > 0) {
+              // 如果需要跳过当前记录，减少 skipCount 并继续
+              skipCount--;
+              count++
+            }
+            if (count >= start && count < end) {
               result.push(cursor.value);
               count++;
             }
-          }
-          if (count < end) {
-            cursor.continue();
+            if (count < end) {
+              cursor.continue();
+            } else {
+              resolve(result);
+            }
           } else {
-            resolve(result);
+            cursor.continue();
           }
         } else {
           resolve(result);
