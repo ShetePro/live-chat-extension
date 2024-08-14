@@ -28,7 +28,7 @@ export class SearchPanel {
         classList: ["lce-search-panel-message"],
       });
       const text = createDocumentEl("span");
-      text.innerHTML = `${msg.user}:${msg.text}`;
+      text.innerHTML = `${msg.user} ${msg.text}`;
       item.append(text);
       return item;
     });

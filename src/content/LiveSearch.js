@@ -144,7 +144,7 @@ export class LiveSearch {
     });
   }
   pushMsgDatabase(msg) {
-    let anchor = this.getNameSpanByMsg(msg)?.innerText.slice(0, -1),
+    let anchor = this.getNameSpanByMsg(msg)?.innerText,
       text,
       time = new Date().getTime(),
       liveId = "",

@@ -84,7 +84,7 @@ class BiliBiliSearch extends LiveSearch {
   }
   pushMsgDatabase(msg) {
     const liveName = document.querySelector(".room-owner-username")?.title;
-    const name = this.getNameSpanByMsg(msg)?.innerText.slice(0, -1);
+    const name = this.getNameSpanByMsg(msg)?.innerText;
     const text = this.getChatSpanByMsg(msg)?.innerText;
     text && this.indexDb?.push({
       user: name,
