@@ -1,3 +1,5 @@
+import { SearchType } from "../content/searchBox";
+
 export class BasicIndexDb {
   constructor() {
     this.objectStoreNames = "message";
@@ -36,6 +38,8 @@ export class BasicIndexDb {
       };
     });
   }
+  // 判断该条消息是否存在
+  has(item) {}
   push(item) {
     return new Promise((resolve, reject) => {
       const request = this.indexDb
@@ -58,6 +62,7 @@ export class BasicIndexDb {
     siteType,
     liveId = "5194110",
     text = "",
+    type = SearchType.message,
   }) {
     return new Promise((resolve, reject) => {
       let keyRange = IDBKeyRange.only([siteType, liveId]);
@@ -79,7 +84,9 @@ export class BasicIndexDb {
         if (cursor) {
           if (count >= start && count < end) {
             const { value } = cursor;
-            if (value.text.indexOf(text) >= 0) {
+            const content =
+              type === SearchType.message ? value.text : value.user;
+            if (content.indexOf(text) >= 0) {
               result.push(cursor.value);
               count++;
             }
@@ -94,6 +101,19 @@ export class BasicIndexDb {
         }
       };
     });
+  }
+  clearBySearch({ liveId, siteType }) {
+    const db = this.indexDb;
+    let keyRange = IDBKeyRange.only([siteType, liveId]);
+    // 开启一个读写事务
+    const transaction = db.transaction([this.objectStoreNames], "readwrite");
+    const objectStore = transaction.objectStore(this.objectStoreNames);
+    let index = objectStore.index("listType"); //索引的意义在于，可以让你搜索任意字段，也就是说从任意字段拿到数据记录
+    let request = index.openCursor(keyRange);
+    request.onsuccess = function (e) {
+      let cursor = event.target.result;
+      cursor?.delete();
+    };
   }
   clear() {
     // 获取所有对象存储的名称

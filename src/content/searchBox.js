@@ -174,6 +174,7 @@ export class SearchBox {
         siteType: this.option.siteType,
         liveId: this.option.liveId,
         text: this.searchText,
+        type: this.type
       })
       .then((res) => {
         console.log(res);

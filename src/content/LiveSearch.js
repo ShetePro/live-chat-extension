@@ -146,7 +146,6 @@ export class LiveSearch {
   pushMsgDatabase(msg) {
     let anchor = this.getNameSpanByMsg(msg)?.innerText.slice(0, -1),
       text,
-      type,
       time = new Date().getTime(),
       liveId = "",
       liveName = "";
@@ -156,7 +155,7 @@ export class LiveSearch {
         user: anchor,
         text,
         timestamp: time,
-        siteType: type,
+        siteType: this.siteType,
         liveId,
         liveName,
       });
