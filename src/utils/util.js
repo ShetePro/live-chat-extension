@@ -22,13 +22,17 @@ export function getConfig() {
   });
 }
 // 修改配置信息
-export function setConfig(value) {
+export function setConfig(value, { merge = false }) {
   return new Promise((resolve, reject) => {
     try {
+      
       chrome.runtime.sendMessage(
         {
           type: "setData",
           key: "config",
+          props: {
+            merge
+          },
           value: { ...value },
         },
         (response) => {
