@@ -1,7 +1,9 @@
 import { SearchType } from "../content/searchBox";
+import { setConfig } from "../utils/util";
 
 export class BasicIndexDb {
   constructor() {
+    this.indexDb = null;
     this.objectStoreNames = "message";
     this.idIndex = "";
   }
@@ -14,8 +16,17 @@ export class BasicIndexDb {
       };
       this.request.onsuccess = (event) => {
         this.indexDb = event.target.result;
+        // 开启自动清除逻辑
+        if (requestIdleCallback) {
+          requestIdleCallback(() => {
+            this.autoClearStrategy();
+          });
+        } else {
+          setTimeout(() => {
+            this.autoClearStrategy();
+          });
+        }
         resolve(this.indexDb);
-        console.log(this.indexDb, "indexDb");
       };
       this.request.onupgradeneeded = (event) => {
         const db = event.target.result;
@@ -31,28 +42,48 @@ export class BasicIndexDb {
           );
         }
         // 创建索引，如果不存在的话
-        if (!objectStore.indexNames.contains("listType")) {
-          objectStore.createIndex("listType", ["siteType", "liveId"], {
-            unique: false,
-          });
-        }
+        this.createIndex(objectStore, "listType", ["siteType", "liveId"], {
+          unique: false,
+        });
+        this.createIndex(objectStore, "createTime", ["timestamp"], {
+          unique: false,
+        });
       };
     });
+  }
+  createIndex(objectStore, name, keyPath, option) {
+    // 创建索引，如果不存在的话
+    if (!objectStore.indexNames.contains(name)) {
+      objectStore.createIndex(name, keyPath, option);
+    }
+  }
+  getObjectStore() {
+    return this.indexDb
+      ?.transaction(this.objectStoreNames, "readwrite")
+      .objectStore(this.objectStoreNames);
   }
   // 判断该条消息是否存在
   has(item) {}
   push(item) {
     return new Promise((resolve, reject) => {
-      const request = this.indexDb
-        .transaction(this.objectStoreNames, "readwrite")
-        .objectStore(this.objectStoreNames)
-        .add(item);
-      request.onsuccess = (event) => {
-        resolve(event.target.result);
-      };
-      request.onerror = (event) => {
-        reject(event);
-      };
+      try {
+        const objectStore = this.getObjectStore();
+        const request = objectStore.add(item);
+        request.onsuccess = (event) => {
+          resolve(event.target.result);
+        };
+        request.onerror = (event) => {
+          reject(event);
+        };
+      } catch (e) {
+        if (e.name === "QuotaExceededError") {
+          // 处理存储空间不足的情况，例如删除旧数据或提示用户
+          console.error("Storage limit exceeded! Cannot add more data.");
+          setConfig({ QuotaExceededError: true }, { merge: true });
+        } else {
+          console.error("Unexpected error:", e);
+        }
+      }
     });
   }
 
@@ -66,8 +97,7 @@ export class BasicIndexDb {
   }) {
     return new Promise((resolve, reject) => {
       let keyRange = IDBKeyRange.only([siteType, liveId]);
-      let transaction = this.indexDb.transaction(this.objectStoreNames);
-      let objectStore = transaction.objectStore(this.objectStoreNames);
+      const objectStore = this.getObjectStore();
       let index = objectStore.index("listType"); //索引的意义在于，可以让你搜索任意字段，也就是说从任意字段拿到数据记录
       let request = index.openCursor(keyRange);
 
@@ -89,7 +119,7 @@ export class BasicIndexDb {
             if (skipCount > 0) {
               // 如果需要跳过当前记录，减少 skipCount 并继续
               skipCount--;
-              count++
+              count++;
             }
             if (count >= start && count < end) {
               result.push(cursor.value);
@@ -109,12 +139,33 @@ export class BasicIndexDb {
       };
     });
   }
+  autoClearStrategy() {
+    const objectStore = this.getObjectStore();
+    const index = objectStore.index("createTime");
+    // 获取当前时间戳
+    const currentTime = Date.now();
+    // 计算24小时之前的时间戳
+    const timeThreshold = currentTime - 24 * 60 * 60 * 1000;
+    // 定义删除范围
+    const keyRange = IDBKeyRange.upperBound([timeThreshold]);
+    const cursorRequest = index.openCursor(keyRange);
+    cursorRequest.onsuccess = function (event) {
+      const cursor = event.target.result;
+      if (cursor) {
+        cursor.delete();
+        cursor.continue(); // 继续到下一个记录
+      }
+    };
+
+    cursorRequest.onerror = function (event) {
+      console.error("Cursor error:", event.target.error);
+    };
+  }
   clearBySearch({ liveId, siteType }) {
     const db = this.indexDb;
     let keyRange = IDBKeyRange.only([siteType, liveId]);
     // 开启一个读写事务
-    const transaction = db.transaction([this.objectStoreNames], "readwrite");
-    const objectStore = transaction.objectStore(this.objectStoreNames);
+    const objectStore = this.getObjectStore();
     let index = objectStore.index("listType"); //索引的意义在于，可以让你搜索任意字段，也就是说从任意字段拿到数据记录
     let request = index.openCursor(keyRange);
     request.onsuccess = function (e) {
