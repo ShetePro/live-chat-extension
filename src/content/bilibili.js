@@ -8,10 +8,12 @@ import { SiteType } from "../utils/enum";
 
 let contentConfig = {};
 let liveControl = null;
-getConfig().then(({ value }) => {
-  contentConfig = value;
-  init();
-});
+setTimeout(() => {
+  getConfig().then(({ value }) => {
+    contentConfig = value;
+    init();
+  });
+}, 1000)
 watchConfig((request) => {
   console.log(request);
   contentConfig = request;

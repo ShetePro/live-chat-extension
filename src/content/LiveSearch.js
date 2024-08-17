@@ -36,7 +36,7 @@ export class LiveSearch {
     if (!this.chatListDom) {
       const iframes = document.body.querySelectorAll("iframe");
       for (const iframe of iframes) {
-        let list = iframe.contentDocument?.querySelector("");
+        let list = iframe.contentDocument?.querySelector(this.listSelector);
         if (list) {
           this.chatListDom = list;
           this.iframe = iframe;
