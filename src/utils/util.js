@@ -56,7 +56,7 @@ export function highLightText(search, text, color) {
 
 // watch chat list message push
 export function observerListPush(dom, callback) {
-  if (dom instanceof HTMLElement) {
+  if (dom.nodeType === 1) {
     const observer = new MutationObserver((mutationsList, observer) => {
       for (let mutation of mutationsList) {
         if (mutation.type === "childList") {

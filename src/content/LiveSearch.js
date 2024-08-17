@@ -48,11 +48,7 @@ export class LiveSearch {
     } else {
       this.renderSearch();
     }
-    this.indexDb.init().then(() => {
-      // watch chat list push msg
-      console.log("开启IndexDb监听");
-      this.watchMessage();
-    });
+    
   }
   awaitIframeLoad(iframe) {
     if (iframe.contentDocument) {
@@ -79,6 +75,11 @@ export class LiveSearch {
       position: (index) => this.scrollTo(index),
     });
     this.searchBox.renderSearch();
+    this.indexDb.init().then(() => {
+      // watch chat list push msg
+      console.log("开启IndexDb监听");
+      this.watchMessage();
+    });
   }
   destroy() {
     this.searchBox?.remove();
