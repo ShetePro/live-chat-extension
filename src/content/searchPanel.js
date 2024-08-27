@@ -22,7 +22,7 @@ export class SearchPanel {
       const bottom = this.dom.scrollHeight - (viewHeight + scrollTop);
       if (!this.loading && !this.finish && bottom <= this.offsetTop) {
         console.log(bottom, "到底了");
-        this.search({ next: false });
+        this.search({ next: true });
       }
     });
     return this.dom;
@@ -41,7 +41,7 @@ export class SearchPanel {
     this.finish = false;
   }
   search({ next } = {}) {
-    if (next) {
+    if (!next) {
       this.chatRecord = [];
     }
     if (this.finish) return;
