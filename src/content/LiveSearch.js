@@ -48,7 +48,6 @@ export class LiveSearch {
     } else {
       this.renderSearch();
     }
-    
   }
   awaitIframeLoad(iframe) {
     if (iframe.contentDocument) {
@@ -130,27 +129,28 @@ export class LiveSearch {
     if (this.observer) return;
     this.observer = observerListPush(this.chatListDom, (mutation) => {
       const { addedNodes } = mutation;
-      const lastMsg = addedNodes[0];
-      if (this.searchText) {
-        const add = this.pushMsgBySearch(lastMsg);
-        if (add) {
-          // 高亮
-          this.highLightMsg(lastMsg);
-          this.searchBox.total++;
-          this.searchBox.renderTotal();
+      addedNodes?.forEach((lastMsg) => {
+        if (this.searchText) {
+          const add = this.pushMsgBySearch(lastMsg);
+          if (add) {
+            // 高亮
+            this.highLightMsg(lastMsg);
+            this.searchBox.total++;
+            this.searchBox.renderTotal();
+          }
         }
-      }
-      // 默认将聊天内容记录在indexDb
-      this.pushMsgDatabase(lastMsg);
+        // 默认将聊天内容记录在indexDb
+        this.pushMsgDatabase(lastMsg);
+      });
     });
   }
   pushMsgDatabase(msg) {
     let anchor = this.getNameSpanByMsg(msg)?.innerText,
       text,
       time = new Date().getTime(),
-      liveId = "",
+      liveId = this.liveId,
       liveName = "";
-    text = this.getChatSpanByMsg(msg).textContent;
+    text = this.getChatSpanByMsg(msg)?.textContent;
     text &&
       this.indexDb?.push({
         user: anchor,
