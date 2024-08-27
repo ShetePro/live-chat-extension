@@ -48,7 +48,7 @@ export class SearchPanel {
     this.loading = true;
     this.onNext(this.searchPage)
       .then((res) => {
-        if (res.length === 0) {
+        if (res.length === 0 && next) {
           this.finish = true;
           return;
         }

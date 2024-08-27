@@ -4,6 +4,7 @@ import { getConfig, highLightText, observerListPush } from "../utils/util";
 import { watchConfig } from "../utils/configWatcher";
 import { setI18nConfig } from "../locales/i8n";
 import { LiveSearch } from "./LiveSearch";
+import {SiteType} from "../utils/enum";
 
 let contentConfig = {};
 let liveControl = null;
@@ -36,26 +37,18 @@ export class HuyaSearch extends LiveSearch {
     super(config);
     // 设置chat list 选择器
     this.listSelector = "#chat-room__list";
+    this.siteType = SiteType.huya;
+    this.liveId = this.href[0];
     this.chatListDom = document.querySelector(this.listSelector);
     this.init()
   }
-  // 重写render
-  renderSearch() {
-    console.log("renderSearch", this.chatListDom);
-    this.searchBox = new SearchBox({
-      x: 200,
-      y: 100,
-      searchCallback: (data) => this.search(data),
-      position: (index) => this.scrollTo(index),
-    });
-    this.searchBox.renderSearch();
-  }
+  
   getNameSpanByMsg(msg) {
-    return msg.querySelector('.name')
+    return msg?.querySelector('.name')
   }
   // 获取内容span
   getChatSpanByMsg(msg) {
-    return msg.querySelector('.msg')
+    return msg?.querySelector('.msg')
   }
   // 重写查询定位
   scrollTo(index) {
