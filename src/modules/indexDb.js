@@ -115,7 +115,7 @@ export class BasicIndexDb {
         if (cursor) {
           const { value } = cursor;
           const content = type === SearchType.message ? value.text : value.user;
-          if (content.indexOf(text) >= 0) {
+          if (content?.indexOf(text) >= 0) {
             if (skipCount > 0) {
               // 如果需要跳过当前记录，减少 skipCount 并继续
               skipCount--;
