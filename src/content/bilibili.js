@@ -13,7 +13,7 @@ setTimeout(() => {
     contentConfig = value;
     init();
   });
-}, 1000)
+}, 2000)
 watchConfig((request) => {
   console.log(request);
   contentConfig = request;
@@ -98,11 +98,11 @@ class BiliBiliSearch extends LiveSearch {
     });
   }
   getNameSpanByMsg(msg) {
-    return msg.querySelector(".user-name");
+    return msg?.querySelector(".user-name");
   }
   // 获取内容span
   getChatSpanByMsg(msg) {
-    return msg.querySelector(".danmaku-item-right");
+    return msg?.querySelector(".danmaku-item-right");
   }
   getScrollBar() {
     const list =

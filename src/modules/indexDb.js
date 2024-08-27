@@ -79,7 +79,7 @@ export class BasicIndexDb {
         if (e.name === "QuotaExceededError") {
           // 处理存储空间不足的情况，例如删除旧数据或提示用户
           console.error("Storage limit exceeded! Cannot add more data.");
-          setConfig({ QuotaExceededError: true }, { merge: true });
+          setConfig({ QuotaExceededError: true });
         } else {
           console.error("Unexpected error:", e);
         }
