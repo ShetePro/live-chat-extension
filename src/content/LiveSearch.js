@@ -203,8 +203,8 @@ export class LiveSearch {
           this.searchType === SearchType.user
             ? this.getNameSpanByMsg(item)
             : this.getChatSpanByMsg(item);
-        const highLightList = span.querySelectorAll("[data-origin-text]");
-        highLightList.forEach((node) => {
+        const highLightList = span?.querySelectorAll("[data-origin-text]");
+        highLightList?.forEach((node) => {
           const textNode = document.createTextNode(node.dataset.originText);
           span.replaceChild(textNode, node);
         });
