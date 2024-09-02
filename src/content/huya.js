@@ -1,6 +1,5 @@
 import "./index.css";
-import { SearchBox, SearchType } from "./searchBox.js";
-import { getConfig, highLightText, observerListPush } from "../utils/util";
+import { getConfig } from "../utils/util";
 import { watchConfig } from "../utils/configWatcher";
 import { setI18nConfig } from "../locales/i8n";
 import { LiveSearch } from "./LiveSearch";
@@ -39,6 +38,7 @@ export class HuyaSearch extends LiveSearch {
     this.listSelector = "#chat-room__list";
     this.siteType = SiteType.huya;
     this.liveId = this.href[0];
+    this.liveName = document.querySelector(".host-name")?.title;
     this.chatListDom = document.querySelector(this.listSelector);
     this.init();
   }
@@ -65,8 +65,11 @@ export class HuyaSearch extends LiveSearch {
       const top =
         this.chatListDom.style.top === "auto"
           ? this.chatListDom.offsetHeight
-          : parseInt(this.chatListDom.style.top);
-      this.scrollView(textDom, offset <= Math.abs(top) ? -1 : 1);
+          : Math.abs(parseInt(this.chatListDom.style.top));
+      this.scrollView(textDom, {
+        offset,
+        direction: offset <= Math.abs(top) ? -1 : 1,
+      });
       // // 创建WheelEvent对象
       // const event = new WheelEvent("wheel", {
       //   bubbles: true,
@@ -79,8 +82,7 @@ export class HuyaSearch extends LiveSearch {
       resolve();
     });
   }
-  scrollView(textDom, direction = -1) {
-    const offset = Math.max(0, textDom.offsetTop - 300);
+  scrollView(textDom, { offset, direction = -1 }) {
     const top =
       this.chatListDom.style.top === "auto"
         ? 0
@@ -91,9 +93,6 @@ export class HuyaSearch extends LiveSearch {
     if (direction === 1 && this.chatListDom.style.top === "auto") {
       return;
     }
-    console.log(offset);
-    console.log(top);
-    console.log(direction)
     const event = new WheelEvent("wheel", {
       bubbles: true,
       cancelable: true,
@@ -102,9 +101,8 @@ export class HuyaSearch extends LiveSearch {
       deltaMode: WheelEvent.DOM_DELTA_PIXEL,
     });
     this.chatListDom.dispatchEvent(event);
-    console.log((direction === -1 ? offset <= top : offset >= top))
     if (top === 0 || (direction === -1 ? offset <= top : offset >= top)) {
-      this.scrollView(textDom, direction);
+      this.scrollView(textDom, { offset, direction });
     }
   }
 }

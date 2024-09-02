@@ -205,7 +205,6 @@ export class SearchBox {
         console.log("收到", index, total);
       },
     );
-    
   }
   next() {
     this.index = this.index >= this.total ? 1 : this.index + 1;

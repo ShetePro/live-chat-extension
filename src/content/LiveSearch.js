@@ -21,6 +21,7 @@ export class LiveSearch {
     this.listSelector = "";
     this.indexDb = new BasicIndexDb();
     this.liveId = "";
+    this.liveName = "";
     this.siteType = "";
     this.href = location.href.split("/")?.at(-1).split("?");
     // window.addEventListener("beforeunload", (event) => {
@@ -158,9 +159,7 @@ export class LiveSearch {
   pushMsgDatabase(msg) {
     let anchor = this.getNameSpanByMsg(msg)?.innerText,
       text,
-      time = new Date().getTime(),
-      liveId = this.liveId,
-      liveName = "";
+      time = new Date().getTime();
     text = this.getChatSpanByMsg(msg)?.textContent;
     text &&
       this.indexDb?.push({
@@ -168,8 +167,8 @@ export class LiveSearch {
         text,
         timestamp: time,
         siteType: this.siteType,
-        liveId,
-        liveName,
+        liveId: this.liveId || "",
+        liveName: this.liveName || "",
       });
   }
   getScrollBar() {

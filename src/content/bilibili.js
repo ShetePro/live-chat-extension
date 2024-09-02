@@ -13,7 +13,7 @@ setTimeout(() => {
     contentConfig = value;
     init();
   });
-}, 2000)
+}, 2000);
 watchConfig((request) => {
   console.log(request);
   contentConfig = request;
@@ -43,6 +43,7 @@ class BiliBiliSearch extends LiveSearch {
     this.chatListDom = document.querySelector(this.listSelector);
     this.siteType = SiteType.bilibili;
     this.liveId = this.href[0];
+    this.liveName = document.querySelector(".room-owner-username")?.title;
     this.init();
   }
   search({ text, index = 0, type }) {
@@ -85,17 +86,17 @@ class BiliBiliSearch extends LiveSearch {
     return false;
   }
   pushMsgDatabase(msg) {
-    const liveName = document.querySelector(".room-owner-username")?.title;
     const name = this.getNameSpanByMsg(msg)?.innerText;
     const text = this.getChatSpanByMsg(msg)?.innerText;
-    text && this.indexDb?.push({
-      user: name,
-      text,
-      timestamp: new Date().getTime(),
-      siteType: this.siteType,
-      liveId: this.liveId,
-      liveName,
-    });
+    text &&
+      this.indexDb?.push({
+        user: name,
+        text,
+        timestamp: new Date().getTime(),
+        siteType: this.siteType,
+        liveId: this.liveId,
+        liveName: this.liveName || "",
+      });
   }
   getNameSpanByMsg(msg) {
     return msg?.querySelector(".user-name");
