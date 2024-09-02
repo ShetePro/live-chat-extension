@@ -70,7 +70,8 @@ export class SearchPanel {
         classList: ["lce-search-panel-message"],
       });
       const text = createDocumentEl("span");
-      text.innerHTML = `${msg.user} ${msg.text}`;
+      const isSeparation = msg?.user?.indexOf(":") >= 0 || msg?.user?.indexOf("：") >= 0;
+      text.innerHTML = `${msg.user + (isSeparation ? "" : "：")} ${msg.text}`;
       item.append(text);
       return item;
     });
