@@ -127,33 +127,26 @@ export class LiveSearch {
   }
   // 清理chat列表清除的消息
   clearRemoveMsgNode() {
-    let flag = false;
     for (let i = 0; i < this.searchList.length; i++) {
       if (this.searchList[0].isConnected) {
         return;
       } else {
         this.searchList.shift();
-        flag = true;
       }
-    }
-    if (flag) {
-      this.searchBox.total = this.searchList.length;
-      this.searchBox.index = 0;
-      this.searchBox.renderTotal();
     }
   }
   watchMessage() {
     if (this.observer) return;
     this.observer = observerListPush(this.chatListDom, (mutation) => {
       const { addedNodes } = mutation;
-      this.clearRemoveMsgNode();
       addedNodes?.forEach((lastMsg) => {
         if (this.searchText) {
           const add = this.pushMsgBySearch(lastMsg);
           if (add) {
             // 高亮
             this.highLightMsg(lastMsg);
-            this.searchBox.total++;
+            this.searchText && this.clearRemoveMsgNode();
+            this.searchBox.total = this.searchList.length;
             this.searchBox.renderTotal();
           }
         }
