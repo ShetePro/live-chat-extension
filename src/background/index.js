@@ -1,6 +1,5 @@
 import { ExtensionConfig } from "./config";
 
-console.log("background", 111111111111);
 // background.js
 const data = {};
 data.config = ExtensionConfig;

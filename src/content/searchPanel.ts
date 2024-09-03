@@ -1,6 +1,18 @@
 import { createDocumentEl } from "../utils/util";
 
+export type SearchPageType = {
+  pageIndex: number
+  pageSize: number
+}
 export class SearchPanel {
+  class: string
+  chatRecord: any[]
+  dom: HTMLElement | null
+  onNext: (params: SearchPageType) => Promise<any[]>
+  searchPage: SearchPageType
+  offsetTop: number
+  finish: boolean
+  loading: boolean
   constructor(opt) {
     this.class = "lce-search-panel";
     this.chatRecord = [];
@@ -17,9 +29,10 @@ export class SearchPanel {
   create() {
     this.dom = createDocumentEl("div", { classList: [this.class] });
     this.dom.addEventListener("scroll", (e) => {
-      const viewHeight = this.dom.clientHeight;
-      const scrollTop = e.target.scrollTop;
-      const bottom = this.dom.scrollHeight - (viewHeight + scrollTop);
+      const viewHeight = this.dom?.clientHeight;
+      const target = e.target as Element
+      const scrollTop = target.scrollTop;
+      const bottom = this.dom?.scrollHeight - (viewHeight + scrollTop);
       if (!this.loading && !this.finish && bottom <= this.offsetTop) {
         console.log(bottom, "到底了");
         this.search({ next: true });
@@ -64,6 +77,7 @@ export class SearchPanel {
     this.searchPage.pageIndex++;
   }
   renderMessages() {
+    if (!this.dom) return
     this.dom.innerHTML = "";
     const itemList = this.chatRecord.map((msg) => {
       const item = createDocumentEl("div", {

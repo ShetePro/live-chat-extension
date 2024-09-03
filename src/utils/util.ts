@@ -1,4 +1,7 @@
-export function createDocumentEl(tag, option) {
+export function createDocumentEl<K extends keyof HTMLElementTagNameMap>(
+  tag: K,
+  option?: CreateDomOption,
+): HTMLElementTagNameMap[K] {
   const { classList = [], append = [] } = option || {};
   const dom = document.createElement(tag);
   dom.classList.add(...classList);
@@ -6,14 +9,14 @@ export function createDocumentEl(tag, option) {
   return dom;
 }
 // 获取配置信息
-export function getConfig() {
+export function getConfig(): Promise<ConfigResponse> {
   return new Promise((resolve, reject) => {
     try {
       chrome.runtime.sendMessage(
         { type: "getData", key: "config" },
         (response) => {
           console.log("config data:", response);
-          resolve(response);
+          resolve(response as ConfigResponse);
         },
       );
     } catch (e) {
@@ -22,7 +25,7 @@ export function getConfig() {
   });
 }
 // 修改配置信息
-export function setConfig(value, props) {
+export function setConfig(value: Record<string, any>, props: null | {} = null) {
   return new Promise((resolve, reject) => {
     try {
       const { merge = true } = props || {
@@ -48,7 +51,7 @@ export function setConfig(value, props) {
 }
 
 // by string return high light html
-export function highLightText(search, text, color) {
+export function highLightText(search: string, text: string, color: string) {
   const regex = new RegExp(search, "g");
   return text.replace(
     regex,
@@ -57,8 +60,11 @@ export function highLightText(search, text, color) {
 }
 
 // watch chat list message push
-export function observerListPush(dom, callback) {
-  if (dom.nodeType === 1) {
+export function observerListPush(
+  dom: Element,
+  callback: (mutation: MutationRecord) => void,
+) {
+  if (dom?.nodeType === 1) {
     const observer = new MutationObserver((mutationsList, observer) => {
       for (let mutation of mutationsList) {
         if (mutation.type === "childList") {

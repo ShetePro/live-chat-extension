@@ -1,11 +1,36 @@
 import { createDocumentEl } from "../utils/util";
 import i18next from "i18next";
-import { SearchPanel } from "./searchPanel";
-export const SearchType = {
-  user: 1,
-  message: 2,
+import {SearchPageType, SearchPanel} from "./searchPanel";
+import { BasicIndexDb } from "../modules/IDB/indexDb";
+import { SearchType, SiteType } from "../enum";
+import {i18Text} from "../locales/i8n";
+
+type SearchBoxOption = {
+  indexDb: BasicIndexDb;
+  x: number;
+  y: number;
+  searchCallback: ({
+    text: string,
+    type: number,
+  }) => Promise<{ index: number; total: number }>;
+  position: (index: number) => Promise<any>;
+  liveId: string;
+  siteType: SiteType;
 };
 export class SearchBox {
+  option: SearchBoxOption;
+  isSearch: boolean;
+  indexDb: BasicIndexDb | null;
+  searchText: string;
+  index: number;
+  total: number;
+  type: SearchType;
+  offset: any;
+  x: number;
+  y: number;
+  cnFlag: boolean;
+  searchBox: HTMLElement;
+  searchPanel: SearchPanel | null;
   constructor(opt) {
     this.option = opt;
     this.isSearch = false;
@@ -18,28 +43,25 @@ export class SearchBox {
     this.x = opt.x || 0;
     this.y = opt.y || 0;
     this.cnFlag = false;
-    this.searchBox = null;
-    this.searchCallback = opt.searchCallback;
-    this.position = opt.position;
+    this.searchBox = document.createElement("div");
     this.searchPanel = new SearchPanel({
-      onNext: (params) => {
-        return this.searchByIndexedDB.call(this, params);
+      onNext: (params: SearchPageType) => {
+        return this.searchByIndexedDB.call(this as SearchBox, params);
       },
     });
-    console.log(opt, SearchType);
   }
   // 拖拽事件
   drag(e) {
     const { x, y } = e;
-    const maxX = window.innerWidth - this.searchBox.clientWidth;
-    const maxY = window.innerHeight - this.searchBox.clientHeight;
+    const maxX = window.innerWidth - this.searchBox?.clientWidth;
+    const maxY = window.innerHeight - this.searchBox?.clientHeight;
     this.x = Math.max(0, Math.min(x - this.offset.x, maxX));
     this.y = Math.max(0, Math.min(y - this.offset.y, maxY));
     this.setStyle();
   }
   // 设置样式
   setStyle() {
-    this.searchBox.setAttribute(
+    this.searchBox?.setAttribute(
       "style",
       `transform: translate(${this.x}px, ${this.y}px`,
     );
@@ -47,10 +69,10 @@ export class SearchBox {
   renderSearch() {
     console.log("显示直播弹幕查询");
     const box = document.createElement("div");
-    box.classList.add("lce-search-box");
-    box.append(this.searchPanel.create());
-    document.body.append(box);
-    this.searchBox = box;
+    this.searchBox.classList.add("lce-search-box");
+    const panel = this.searchPanel?.create();
+    panel && this.searchBox.append(panel);
+    document.body.append(this.searchBox);
     this.setStyle();
     this.renderTypeSelect();
     this.renderInput();
@@ -61,7 +83,7 @@ export class SearchBox {
     this.searchBox.addEventListener(
       "mousedown",
       (e) => {
-        const { left, top } = this.searchBox.getBoundingClientRect();
+        const { left, top } = this.searchBox?.getBoundingClientRect();
         this.offset = {
           x: e.x - left,
           y: e.y - top,
@@ -81,11 +103,11 @@ export class SearchBox {
     });
     const userBox = createDocumentEl("div", {
       classList: ["lce-type-select-user", "lce-type-box"],
-      append: [i18next.t("user")],
+      append: [i18Text("user")],
     });
     const messageBox = createDocumentEl("div", {
       classList: ["lce-type-select-message", "lce-type-box"],
-      append: [i18next.t("chat")],
+      append: [i18Text("chat")],
     });
     console.log(this.type);
     userBox.classList.add(
@@ -108,7 +130,7 @@ export class SearchBox {
       node[1].classList.add("lce-type-hide");
       this.search();
     });
-    this.searchBox.append(box);
+    this.searchBox?.append(box);
   }
   renderInput() {
     const box = createDocumentEl("input", {
@@ -125,15 +147,15 @@ export class SearchBox {
       this.cnFlag = false;
       this.search();
     });
-    this.searchBox.append(box);
+    this.searchBox?.append(box);
   }
   renderTotal() {
-    let span = this.searchBox.querySelector(".index-total");
+    let span = this.searchBox?.querySelector(".index-total") as HTMLElement;
     if (!span) {
       span = createDocumentEl("span", {
         classList: ["index-total"],
       });
-      this.searchBox.append(span);
+      this.searchBox?.append(span);
     }
     console.log(this.isSearch, "is Search");
     if (this.isSearch) {
@@ -159,7 +181,7 @@ export class SearchBox {
     });
     next.addEventListener("click", () => this.next());
     previous.addEventListener("click", () => this.previous());
-    this.searchBox.append(group);
+    this.searchBox?.append(group);
   }
   searchTextEvent(e) {
     this.searchText = e.target.value;
@@ -168,7 +190,7 @@ export class SearchBox {
       this.search();
     }
   }
-  searchByIndexedDB({ pageIndex = 1, pageSize = 20 }) {
+  searchByIndexedDB({ pageIndex = 1, pageSize = 20 }: SearchPageType) {
     return new Promise((resolve, reject) => {
       // 数据库查询逻辑
       this.indexDb
@@ -191,30 +213,30 @@ export class SearchBox {
   search() {
     // 数据库查询
     if (this.searchText) {
-      this.searchPanel.show();
+      this.searchPanel?.show();
     } else {
-      this.searchPanel.hide();
+      this.searchPanel?.hide();
     }
     // dom查询逻辑
-    this.searchCallback({ text: this.searchText, type: this.type }).then(
-      ({ index, total, messages }) => {
+    this.option
+      .searchCallback({ text: this.searchText, type: this.type })
+      .then(({ index, total, messages }) => {
         this.index = index;
         this.total = total;
         this.renderTotal();
 
         console.log("收到", index, total);
-      },
-    );
+      });
   }
   next() {
     this.index = this.index >= this.total ? 1 : this.index + 1;
-    this.position?.(this.index).then(() => {
+    this.option.position?.(this.index).then(() => {
       this.renderTotal();
     });
   }
   previous() {
     this.index = this.index <= 1 ? this.total : this.index - 1;
-    this.position?.(this.index).then(() => {
+    this.option.position?.(this.index).then(() => {
       this.renderTotal();
     });
   }

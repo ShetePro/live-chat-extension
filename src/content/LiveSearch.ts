@@ -1,15 +1,35 @@
-import { SearchBox, SearchType } from "./searchBox";
+import { SearchBox } from "./searchBox";
 import {
   createDocumentEl,
   highLightText,
   observerListPush,
 } from "../utils/util";
-import { BasicIndexDb } from "../modules/indexDb";
+import { BasicIndexDb } from "../modules/IDB/indexDb";
+import { SearchType, SiteType } from "../enum";
 
-export class LiveSearch {
+export abstract class LiveSearch {
+  liveData: Record<string, any>[];
+  contentConfig: SettingConfig;
+  observer: null | MutationObserver;
+  searchBox: null | SearchBox;
+  searchList: any[];
+  searchText: string;
+  searchType: SearchType;
+  searchTextTop: number;
+  iframe: HTMLIFrameElement | null;
+  chatListDom: HTMLElement | null;
+  listSelector: string;
+  indexDb: BasicIndexDb | null;
+  liveId: string;
+  liveName: string;
+  siteType: SiteType;
+  href: string;
+  // 获取用户名span
+  abstract getNameSpanByMsg(msg): HTMLElement;
+  // 获取内容span
+  abstract getChatSpanByMsg(msg): HTMLElement;
   constructor(config) {
     this.contentConfig = config;
-    this.iframe = null;
     this.liveData = [];
     this.observer = null;
     this.searchBox = null;
@@ -22,7 +42,6 @@ export class LiveSearch {
     this.indexDb = new BasicIndexDb();
     this.liveId = "";
     this.liveName = "";
-    this.siteType = "";
     this.href = location.href.split("/")?.at(-1).split("?");
     // window.addEventListener("beforeunload", (event) => {
     //   // 清空该直播间 IndexedDB 记录的聊天数据
@@ -39,7 +58,7 @@ export class LiveSearch {
       for (const iframe of iframes) {
         let list = iframe.contentDocument?.querySelector(this.listSelector);
         if (list) {
-          this.chatListDom = list;
+          this.chatListDom = list as HTMLElement;
           this.iframe = iframe;
           this.renderSearch();
         } else {
@@ -64,7 +83,7 @@ export class LiveSearch {
   }
   renderSearch() {
     const { bottom, left, width, top } =
-      this.chatListDom.getBoundingClientRect();
+      this.chatListDom?.getBoundingClientRect();
     this.searchBox = new SearchBox({
       indexDb: this.indexDb,
       x: left + 10,
@@ -75,7 +94,7 @@ export class LiveSearch {
       position: (index) => this.scrollTo(index),
     });
     this.searchBox.renderSearch();
-    this.indexDb.init().then(() => {
+    this.indexDb?.init().then(() => {
       // watch chat list push msg
       console.log("开启IndexDb监听");
       this.watchMessage();
@@ -88,7 +107,7 @@ export class LiveSearch {
   }
   search({ text, index = 0, type }) {
     return new Promise(async (resolve, reject) => {
-      const list = this.chatListDom.children;
+      const list = this.chatListDom?.children;
       this.searchType = type;
       try {
         await this.clearHighLight();
@@ -114,7 +133,7 @@ export class LiveSearch {
     });
   }
   pushMsgBySearch(msg) {
-    const name = this.getNameSpanByMsg(msg)?.innerText;
+    const name = this.getNameSpanByMsg(msg).innerText;
     const text = this.getChatSpanByMsg(msg)?.innerText;
     if (
       (this.searchType === SearchType.user ? name : text)?.indexOf(
@@ -137,7 +156,7 @@ export class LiveSearch {
     }
   }
   watchMessage() {
-    if (this.observer) return;
+    if (this.observer || !this.chatListDom) return;
     this.observer = observerListPush(this.chatListDom, (mutation) => {
       const { addedNodes } = mutation;
       addedNodes?.forEach((lastMsg) => {
@@ -147,8 +166,10 @@ export class LiveSearch {
             // 高亮
             this.highLightMsg(lastMsg);
             this.searchText && this.clearRemoveMsgNode();
-            this.searchBox.total = this.searchList.length;
-            this.searchBox.renderTotal();
+            if (this.searchBox) {
+              this.searchBox.total = this.searchList.length;
+              this.searchBox.renderTotal();
+            }
           }
         }
         // 默认将聊天内容记录在indexDb
@@ -172,10 +193,10 @@ export class LiveSearch {
       });
   }
   getScrollBar() {
-    const list =
-      document.body.querySelector("#chatRoom") ||
-      this.iframe.contentDocument?.querySelector("#chatRoom");
-    console.log(list);
+    let list = document.body.querySelector("#chatRoom");
+    if (this.iframe && !list) {
+      list = this.iframe?.contentDocument?.querySelector("#chatRoom");
+    }
     return list?.querySelector(".scroll_move");
   }
   highLight() {
@@ -215,17 +236,15 @@ export class LiveSearch {
             : this.getChatSpanByMsg(item);
         const highLightList = span?.querySelectorAll("[data-origin-text]");
         highLightList?.forEach((node) => {
-          const textNode = document.createTextNode(node.dataset.originText);
+          const dataset = (node as HTMLElement).dataset;
+          const textNode = document.createTextNode(dataset.originText);
           span.replaceChild(textNode, node);
         });
       });
       resolve();
     });
   }
-  // 获取用户名span
-  getNameSpanByMsg(msg) {}
-  // 获取内容span
-  getChatSpanByMsg(msg) {}
+
   // 自定义查询定位
   scrollTo(index) {
     return new Promise((resolve, reject) => {
@@ -243,7 +262,7 @@ export class LiveSearch {
         deltaY: -100, // 向上滚动
         deltaMode: WheelEvent.DOM_DELTA_PIXEL,
       });
-      this.chatListDom.dispatchEvent(event);
+      this.chatListDom?.dispatchEvent(event);
       resolve();
     });
   }

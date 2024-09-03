@@ -29,6 +29,7 @@ export let i18nConfig = {
   },
 };
 
+
 export function setI18nConfig(config = {}) {
   i18nConfig = {
     ...i18nConfig,
@@ -37,6 +38,6 @@ export function setI18nConfig(config = {}) {
   i18next.init(i18nConfig);
 }
 
-export function i18Text(key) {
-  return i18next.t(key);
+export function i18Text(key: string): string {
+  return i18next.t(key as any);
 }

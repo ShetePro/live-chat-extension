@@ -1,12 +1,11 @@
-import { SearchType } from "./searchBox.js";
 import { getConfig } from "../utils/util";
 import "./index.css";
 import { watchConfig } from "../utils/configWatcher";
 import { setI18nConfig } from "../locales/i8n";
 import { LiveSearch } from "./LiveSearch";
-import { SiteType } from "../utils/enum";
+import {SearchType, SiteType} from "../enum";
 
-let contentConfig = {};
+let contentConfig: SettingConfig | null = null;
 let liveControl = null;
 setTimeout(() => {
   getConfig().then(({ value }) => {
@@ -21,6 +20,7 @@ watchConfig((request) => {
 });
 
 function init() {
+  if (!contentConfig) return
   setI18nConfig({
     lng: contentConfig.language,
   });
@@ -43,12 +43,12 @@ class BiliBiliSearch extends LiveSearch {
     this.chatListDom = document.querySelector(this.listSelector);
     this.siteType = SiteType.bilibili;
     this.liveId = this.href[0];
-    this.liveName = document.querySelector(".room-owner-username")?.title;
+    this.liveName = (document.querySelector(".room-owner-username") as HTMLElement)?.title;
     this.init();
   }
   search({ text, index = 0, type }) {
     return new Promise(async (resolve, reject) => {
-      const list = this.chatListDom.children;
+      const list = this.chatListDom?.children;
       this.searchType = type;
       try {
         await this.clearHighLight();
@@ -105,10 +105,10 @@ class BiliBiliSearch extends LiveSearch {
   getChatSpanByMsg(msg) {
     return msg?.querySelector(".danmaku-item-right");
   }
-  getScrollBar() {
+  getScrollBar(): HTMLElement {
     const list =
       document.body.querySelector("#chat-history-list") ||
-      this.iframe.contentDocument?.activeElement?.querySelector(
+      this.iframe?.contentDocument?.activeElement?.querySelector(
         "#chat-history-list",
       );
     return list?.querySelector(".ps__scrollbar-y-rail");
@@ -123,7 +123,7 @@ class BiliBiliSearch extends LiveSearch {
       }
       const scrollBar = this.getScrollBar();
       this.searchTextTop = textDom.offsetTop;
-      const top = this.searchTextTop - parseInt(scrollBar.style.top);
+      const top = this.searchTextTop - parseInt(scrollBar?.style.top);
       // 创建WheelEvent对象
       const event = new WheelEvent("wheel", {
         bubbles: true,
@@ -132,7 +132,7 @@ class BiliBiliSearch extends LiveSearch {
         deltaY: top, // 向上滚动
         deltaMode: WheelEvent.DOM_DELTA_PIXEL,
       });
-      this.chatListDom.dispatchEvent(event);
+      this.chatListDom?.dispatchEvent(event);
       resolve();
     });
   }

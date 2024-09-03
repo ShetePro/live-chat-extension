@@ -1,4 +1,4 @@
-export const ExtensionConfig = {
+export const ExtensionConfig: SettingConfig = {
   isOpen: true,
   defaultOpen: true,
   language: "en",

@@ -21,25 +21,25 @@
     {
       "matches": ["https://live.bilibili.com/*"],
       "type": "module",
-      "js": ["/src/content/bilibili.js"],
+      "js": ["/src/content/bilibili.ts"],
       "run_at": "document_end"
     },
     {
       "matches": ["https://www.huya.com/*"],
       "type": "module",
-      "js": ["/src/content/huya.js"],
+      "js": ["/src/content/huya.ts"],
       "run_at": "document_end"
     },
     {
       "matches": ["https://www.douyu.com/*"],
       "type": "module",
-      "js": ["/src/content/huya.js"],
+      "js": ["/src/content/huya.ts"],
       "run_at": "document_end"
     },
     {
       "matches": ["https://www.twitch.tv/*"],
       "type": "module",
-      "js": ["/src/content/huya.js"],
+      "js": ["/src/content/huya.ts"],
       "run_at": "document_end"
     }
   ],

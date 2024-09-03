@@ -3,14 +3,16 @@ import { getConfig } from "../utils/util";
 import { watchConfig } from "../utils/configWatcher";
 import { setI18nConfig } from "../locales/i8n";
 import { LiveSearch } from "./LiveSearch";
-import { SiteType } from "../utils/enum";
+import {SiteType} from "../enum";
 
-let contentConfig = {};
+let contentConfig: SettingConfig | null = null;
 let liveControl = null;
-getConfig().then(({ value }) => {
-  contentConfig = value;
-  init();
-});
+setTimeout(() => {
+  getConfig().then(({ value }) => {
+    contentConfig = value;
+    init();
+  });
+}, 2000);
 watchConfig((request) => {
   contentConfig = request;
   init();
@@ -18,9 +20,9 @@ watchConfig((request) => {
 
 function init() {
   setI18nConfig({
-    lng: contentConfig.language,
+    lng: contentConfig?.language,
   });
-  if (contentConfig.isOpen) {
+  if (contentConfig?.isOpen) {
     searchInit();
   } else {
     liveControl?.destroy();
@@ -38,7 +40,7 @@ export class HuyaSearch extends LiveSearch {
     this.listSelector = "#chat-room__list";
     this.siteType = SiteType.huya;
     this.liveId = this.href[0];
-    this.liveName = document.querySelector(".host-name")?.title;
+    this.liveName = (document.querySelector(".host-name") as HTMLElement)?.title;
     this.chatListDom = document.querySelector(this.listSelector);
     this.init();
   }
@@ -54,6 +56,7 @@ export class HuyaSearch extends LiveSearch {
   scrollTo(index) {
     return new Promise((resolve, reject) => {
       const textDom = this.searchList[index - 1];
+      if (!this.chatListDom) return
       if (!textDom) {
         console.log("index 错误", index);
         reject();
@@ -63,9 +66,9 @@ export class HuyaSearch extends LiveSearch {
       this.searchTextTop = textDom.offsetTop;
       const offset = Math.max(0, textDom.offsetTop - 300);
       const top =
-        this.chatListDom.style.top === "auto"
+        this.chatListDom?.style.top === "auto"
           ? this.chatListDom.offsetHeight
-          : Math.abs(parseInt(this.chatListDom.style.top));
+          : Math.abs(parseInt(this.chatListDom?.style.top));
       this.scrollView(textDom, {
         offset,
         direction: offset <= Math.abs(top) ? -1 : 1,
@@ -84,13 +87,13 @@ export class HuyaSearch extends LiveSearch {
   }
   scrollView(textDom, { offset, direction = -1 }) {
     const top =
-      this.chatListDom.style.top === "auto"
+      this.chatListDom?.style.top === "auto"
         ? 0
-        : Math.abs(parseInt(this.chatListDom.style.top));
-    if (direction === -1 && this.chatListDom.style.top === "0px") {
+        : Math.abs(parseInt(this.chatListDom?.style.top));
+    if (direction === -1 && this.chatListDom?.style.top === "0px") {
       return;
     }
-    if (direction === 1 && this.chatListDom.style.top === "auto") {
+    if (direction === 1 && this.chatListDom?.style.top === "auto") {
       return;
     }
     const event = new WheelEvent("wheel", {
@@ -100,7 +103,7 @@ export class HuyaSearch extends LiveSearch {
       deltaY: 120 * direction, // 向上滚动
       deltaMode: WheelEvent.DOM_DELTA_PIXEL,
     });
-    this.chatListDom.dispatchEvent(event);
+    this.chatListDom?.dispatchEvent(event);
     if (top === 0 || (direction === -1 ? offset <= top : offset >= top)) {
       this.scrollView(textDom, { offset, direction });
     }

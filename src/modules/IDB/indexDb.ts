@@ -1,11 +1,16 @@
-import { SearchType } from "../content/searchBox";
-import { setConfig } from "../utils/util";
+import { setConfig } from "../../utils/util";
+import { SearchType } from "../../enum";
+import { ChatMessageType, IDBEvent, SearchChatPageParams } from "./type";
 
 export class BasicIndexDb {
+  indexDb: IDBDatabase;
+  objectStoreNames: string;
+  idIndex: string;
+  request: null | IDBOpenDBRequest;
   constructor() {
-    this.indexDb = null;
     this.objectStoreNames = "message";
     this.idIndex = "";
+    this.request = null;
   }
   init() {
     return new Promise((resolve, reject) => {
@@ -15,7 +20,8 @@ export class BasicIndexDb {
         reject(event);
       };
       this.request.onsuccess = (event) => {
-        this.indexDb = event.target.result;
+        const target = event.target as { result: IDBDatabase };
+        this.indexDb = target.result;
         // 开启自动清除逻辑
         if (requestIdleCallback) {
           requestIdleCallback(() => {
@@ -28,7 +34,7 @@ export class BasicIndexDb {
         }
         resolve(this.indexDb);
       };
-      this.request.onupgradeneeded = (event) => {
+      this.request.onupgradeneeded = (event: IDBEvent) => {
         const db = event.target.result;
         let objectStore;
         if (!db.objectStoreNames.contains(this.objectStoreNames)) {
@@ -37,9 +43,9 @@ export class BasicIndexDb {
             autoIncrement: true,
           });
         } else {
-          objectStore = event.target.transaction.objectStore(
-            this.objectStoreNames,
-          );
+          objectStore = event.target.result
+            .transaction(this.objectStoreNames, "readwrite")
+            .objectStore(this.objectStoreNames);
         }
         // 创建索引，如果不存在的话
         this.createIndex(objectStore, "listType", ["siteType", "liveId"], {
@@ -64,15 +70,15 @@ export class BasicIndexDb {
   }
   // 判断该条消息是否存在
   has(item) {}
-  push(item) {
+  push(item: ChatMessageType) {
     return new Promise((resolve, reject) => {
       try {
         const objectStore = this.getObjectStore();
         const request = objectStore.add(item);
-        request.onsuccess = (event) => {
-          resolve(event.target.result);
+        request.onsuccess = (event: IDBEvent) => {
+          resolve(event.target?.result);
         };
-        request.onerror = (event) => {
+        request.onerror = (event: IDBEvent) => {
           reject(event);
         };
       } catch (e) {
@@ -94,7 +100,7 @@ export class BasicIndexDb {
     liveId = "",
     text = "",
     type = SearchType.message,
-  }) {
+  }: SearchChatPageParams) {
     return new Promise((resolve, reject) => {
       let keyRange = IDBKeyRange.only([siteType, liveId]);
       const objectStore = this.getObjectStore();
@@ -110,8 +116,8 @@ export class BasicIndexDb {
       const end = pageIndex * pageSize;
       let count = 0;
       let skipCount = (pageIndex - 1) * pageSize;
-      request.onsuccess = function (e) {
-        let cursor = event.target.result;
+      request.onsuccess = function (e: IDBEvent) {
+        let cursor = e.target.result;
         if (cursor) {
           const { value } = cursor;
           const content = type === SearchType.message ? value.text : value.user;
@@ -149,7 +155,7 @@ export class BasicIndexDb {
     // 定义删除范围
     const keyRange = IDBKeyRange.upperBound([timeThreshold]);
     const cursorRequest = index.openCursor(keyRange);
-    cursorRequest.onsuccess = function (event) {
+    cursorRequest.onsuccess = function (event: IDBEvent) {
       const cursor = event.target.result;
       if (cursor) {
         cursor.delete();
@@ -158,7 +164,7 @@ export class BasicIndexDb {
     };
 
     cursorRequest.onerror = function (event) {
-      console.error("Cursor error:", event.target.error);
+      console.error("Cursor error:", event);
     };
   }
   clearBySearch({ liveId, siteType }) {
@@ -168,7 +174,7 @@ export class BasicIndexDb {
     const objectStore = this.getObjectStore();
     let index = objectStore.index("listType"); //索引的意义在于，可以让你搜索任意字段，也就是说从任意字段拿到数据记录
     let request = index.openCursor(keyRange);
-    request.onsuccess = function (e) {
+    request.onsuccess = function (event: IDBEvent) {
       let cursor = event.target.result;
       cursor?.delete();
     };
