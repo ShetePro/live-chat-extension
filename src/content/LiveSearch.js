@@ -67,8 +67,8 @@ export class LiveSearch {
       this.chatListDom.getBoundingClientRect();
     this.searchBox = new SearchBox({
       indexDb: this.indexDb,
-      x: left + width,
-      y: bottom + 100,
+      x: left + 10,
+      y: top,
       liveId: this.liveId,
       siteType: this.siteType,
       searchCallback: (data) => this.search(data),
