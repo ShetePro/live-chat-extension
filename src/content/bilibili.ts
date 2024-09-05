@@ -3,7 +3,7 @@ import "./index.css";
 import { watchConfig } from "../utils/configWatcher";
 import { setI18nConfig } from "../locales/i8n";
 import { LiveSearch } from "./LiveSearch";
-import {SearchType, SiteType} from "../enum";
+import { SearchType, SiteType } from "../enum";
 
 let contentConfig: SettingConfig | null = null;
 let liveControl = null;
@@ -20,7 +20,7 @@ watchConfig((request) => {
 });
 
 function init() {
-  if (!contentConfig) return
+  if (!contentConfig) return;
   setI18nConfig({
     lng: contentConfig.language,
   });
@@ -43,7 +43,9 @@ class BiliBiliSearch extends LiveSearch {
     this.chatListDom = document.querySelector(this.listSelector);
     this.siteType = SiteType.bilibili;
     this.liveId = this.href[0];
-    this.liveName = (document.querySelector(".room-owner-username") as HTMLElement)?.title;
+    this.liveName = (
+      document.querySelector(".room-owner-username") as HTMLElement
+    )?.title;
     this.init();
   }
   search({ text, index = 0, type }) {
@@ -106,11 +108,12 @@ class BiliBiliSearch extends LiveSearch {
     return msg?.querySelector(".danmaku-item-right");
   }
   getScrollBar(): HTMLElement {
-    const list =
-      document.body.querySelector("#chat-history-list") ||
-      this.iframe?.contentDocument?.activeElement?.querySelector(
-        "#chat-history-list",
-      );
+    const selector = "#chat-history-list";
+    let list =
+      document.body.querySelector(selector);
+    if (!list && this.iframe?.contentDocument) {
+      list = this.iframe.contentDocument.activeElement.querySelector(selector);
+    }
     return list?.querySelector(".ps__scrollbar-y-rail");
   }
   scrollTo(index) {

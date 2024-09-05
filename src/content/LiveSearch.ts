@@ -28,6 +28,7 @@ export abstract class LiveSearch {
   abstract getNameSpanByMsg(msg): HTMLElement;
   // 获取内容span
   abstract getChatSpanByMsg(msg): HTMLElement;
+  abstract scrollTo(msg): Promise<any>;
   constructor(config) {
     this.contentConfig = config;
     this.liveData = [];
@@ -241,28 +242,6 @@ export abstract class LiveSearch {
           span.replaceChild(textNode, node);
         });
       });
-      resolve();
-    });
-  }
-
-  // 自定义查询定位
-  scrollTo(index) {
-    return new Promise((resolve, reject) => {
-      const textDom = this.searchList[index - 1];
-      if (!textDom) {
-        console.log("index 错误");
-        reject();
-        return;
-      }
-      // 创建WheelEvent对象
-      const event = new WheelEvent("wheel", {
-        bubbles: true,
-        cancelable: true,
-        deltaX: 0,
-        deltaY: -100, // 向上滚动
-        deltaMode: WheelEvent.DOM_DELTA_PIXEL,
-      });
-      this.chatListDom?.dispatchEvent(event);
       resolve();
     });
   }

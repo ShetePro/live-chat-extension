@@ -73,15 +73,6 @@ export class HuyaSearch extends LiveSearch {
         offset,
         direction: offset <= Math.abs(top) ? -1 : 1,
       });
-      // // 创建WheelEvent对象
-      // const event = new WheelEvent("wheel", {
-      //   bubbles: true,
-      //   cancelable: true,
-      //   deltaX: 0,
-      //   deltaY: -2, // 向上滚动
-      //   deltaMode: WheelEvent.DOM_DELTA_PAGE,
-      // });
-      // this.chatListDom.dispatchEvent(event);
       resolve();
     });
   }
