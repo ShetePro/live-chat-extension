@@ -33,7 +33,7 @@
     {
       "matches": ["https://www.douyu.com/*"],
       "type": "module",
-      "js": ["/src/content/huya.ts"],
+      "js": ["/src/content/douyu.ts"],
       "run_at": "document_end"
     },
     {
