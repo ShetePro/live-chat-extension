@@ -6,6 +6,7 @@ import {
 } from "../utils/util";
 import { BasicIndexDb } from "../modules/IDB/indexDb";
 import { SearchType, SiteType } from "../enum";
+import { ChatMessageType } from "../modules/IDB/type";
 
 export abstract class LiveSearch {
   liveData: Record<string, any>[];
@@ -120,6 +121,7 @@ export abstract class LiveSearch {
           }
           // 高亮
           this.highLight().then(() => {
+            console.log(this.searchList.length)
             resolve({ index, total: this.searchList.length });
           });
         } else {
@@ -134,7 +136,7 @@ export abstract class LiveSearch {
     });
   }
   pushMsgBySearch(msg) {
-    const name = this.getNameSpanByMsg(msg).innerText;
+    const name = this.getNameSpanByMsg(msg)?.innerText;
     const text = this.getChatSpanByMsg(msg)?.innerText;
     if (
       (this.searchType === SearchType.user ? name : text)?.indexOf(
@@ -179,19 +181,15 @@ export abstract class LiveSearch {
     });
   }
   pushMsgDatabase(msg) {
-    let anchor = this.getNameSpanByMsg(msg)?.innerText,
-      text,
-      time = new Date().getTime();
-    text = this.getChatSpanByMsg(msg)?.textContent;
-    text &&
-      this.indexDb?.push({
-        user: anchor,
-        text,
-        timestamp: time,
-        siteType: this.siteType,
-        liveId: this.liveId || "",
-        liveName: this.liveName || "",
-      });
+    const params: ChatMessageType = {
+      user: this.getNameSpanByMsg(msg)?.innerText,
+      text: this.getChatSpanByMsg(msg)?.innerText,
+      timestamp: new Date().getTime(),
+      siteType: this.siteType,
+      liveId: this.liveId || "",
+      liveName: this.liveName || "",
+    };
+    params.text && this.indexDb?.push(params);
   }
   getScrollBar() {
     let list = document.body.querySelector("#chatRoom");
