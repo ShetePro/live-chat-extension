@@ -173,6 +173,14 @@
     flex-direction: row;
     padding: 10px;
   }
+  .lce-search-panel-finish {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    color: #999999;
+  }
 }
 .lce-search-panel.show-panel {
   opacity: 1;

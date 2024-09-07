@@ -1,18 +1,20 @@
 import { createDocumentEl } from "../utils/util";
+import { i18Text } from "../locales/i8n";
 
 export type SearchPageType = {
-  pageIndex: number
-  pageSize: number
-}
+  pageIndex: number;
+  pageSize: number;
+};
 export class SearchPanel {
-  class: string
-  chatRecord: any[]
-  dom: HTMLElement | null
-  onNext: (params: SearchPageType) => Promise<any[]>
-  searchPage: SearchPageType
-  offsetTop: number
-  finish: boolean
-  loading: boolean
+  class: string;
+  chatRecord: any[];
+  dom: HTMLElement | null;
+  onNext: (params: SearchPageType) => Promise<any[]>;
+  searchPage: SearchPageType;
+  offsetTop: number;
+  finish: boolean;
+  finishText: HTMLElement;
+  loading: boolean;
   constructor(opt) {
     this.class = "lce-search-panel";
     this.chatRecord = [];
@@ -24,13 +26,17 @@ export class SearchPanel {
     };
     this.offsetTop = 20;
     this.finish = false;
+    this.finishText = createDocumentEl("span", {
+      classList: [this.class + "-finish"],
+      append: [i18Text("noMore")],
+    });
     this.loading = false;
   }
   create() {
     this.dom = createDocumentEl("div", { classList: [this.class] });
     this.dom.addEventListener("scroll", (e) => {
       const viewHeight = this.dom?.clientHeight;
-      const target = e.target as Element
+      const target = e.target as Element;
       const scrollTop = target.scrollTop;
       const bottom = this.dom?.scrollHeight - (viewHeight + scrollTop);
       if (!this.loading && !this.finish && bottom <= this.offsetTop) {
@@ -61,15 +67,23 @@ export class SearchPanel {
     this.loading = true;
     this.onNext(this.searchPage)
       .then((res) => {
-        if (res.length === 0 && next) {
+        const len = res.length;
+        if (len === 0 && next) {
           this.finish = true;
+          this.setFinishText();
           return;
+        } else if (len < this.searchPage.pageSize) {
+          this.finish = true;
+          this.setFinishText();
+        } else {
+          this.finish = false;
         }
         this.chatRecord = [...this.chatRecord, ...res];
         this.renderMessages();
       })
-      .catch(() => {
+      .catch((e) => {
         this.finish = true;
+        console.error(e)
       })
       .finally(() => {
         this.loading = false;
@@ -77,19 +91,27 @@ export class SearchPanel {
     this.searchPage.pageIndex++;
   }
   renderMessages() {
-    if (!this.dom) return
+    if (!this.dom) return;
     this.dom.innerHTML = "";
     const itemList = this.chatRecord.map((msg) => {
       const item = createDocumentEl("div", {
         classList: ["lce-search-panel-message"],
       });
       const text = createDocumentEl("span");
-      const isSeparation = msg?.user?.indexOf(":") >= 0 || msg?.user?.indexOf("：") >= 0;
+      const isSeparation =
+        msg?.user?.indexOf(":") >= 0 || msg?.user?.indexOf("：") >= 0;
       text.innerHTML = `${msg.user + (isSeparation ? "" : "：")} ${msg.text}`;
       item.append(text);
       return item;
     });
     this.dom.append(...itemList);
+    this.setFinishText();
   }
-  renderMessageItem() {}
+  setFinishText() {
+    if (this.finish) {
+      this.dom?.append(this.finishText);
+    } else {
+      this.finishText?.remove();
+    }
+  }
 }

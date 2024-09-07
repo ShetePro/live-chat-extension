@@ -13,6 +13,7 @@ export let i18nConfig = {
         languages: "Languages",
         isDefaultOpen: "Enabled by default",
         isOpen: "Is enabled",
+        noMore: 'No More'
       },
     },
     cn: {
@@ -24,6 +25,7 @@ export let i18nConfig = {
         languages: "语言",
         isDefaultOpen: "默认开启",
         isOpen: "是否打开",
+        noMore: "没有更多了"
       },
     },
   },
