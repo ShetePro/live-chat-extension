@@ -6,7 +6,7 @@
   "web_accessible_resources": [
     {
       "resources": ["/src/*", "assets/*"],
-      "matches": ["https://live.bilibili.com/*", "https://www.huya.com/*"]
+      "matches": ["https://live.bilibili.com/*", "https://www.huya.com/*", "https://www.douyu.com/*"]
     }
   ],
   "action": {
@@ -21,25 +21,25 @@
     {
       "matches": ["https://live.bilibili.com/*"],
       "type": "module",
-      "js": ["/src/content/bilibili.ts"],
+      "js": ["src/content/bilibili.ts"],
       "run_at": "document_end"
     },
     {
       "matches": ["https://www.huya.com/*"],
       "type": "module",
-      "js": ["/src/content/huya.ts"],
+      "js": ["src/content/huya.ts"],
       "run_at": "document_end"
     },
     {
       "matches": ["https://www.douyu.com/*"],
       "type": "module",
-      "js": ["/src/content/douyu.ts"],
+      "js": ["src/content/douyu.ts"],
       "run_at": "document_end"
     },
     {
       "matches": ["https://www.twitch.tv/*"],
       "type": "module",
-      "js": ["/src/content/huya.ts"],
+      "js": ["src/content/huya.ts"],
       "run_at": "document_end"
     }
   ],
