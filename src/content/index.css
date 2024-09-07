@@ -181,6 +181,13 @@
     padding: 10px;
     color: #999999;
   }
+  .lce-search-panel-loading {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    flex-grow: 1;
+  }
 }
 .lce-search-panel.show-panel {
   opacity: 1;

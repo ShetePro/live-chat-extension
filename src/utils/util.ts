@@ -83,3 +83,11 @@ export function observerListPush(
   }
   return null;
 }
+
+// 获取静态资源地址 解决浏览器插件和页面中的地址冲突
+export function getImageSrc (src: string): string | null {
+  if (src) {
+    return chrome.runtime.getURL(src)
+  }
+  return null
+}

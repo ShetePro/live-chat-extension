@@ -4,7 +4,6 @@ import { watchConfig } from "../utils/configWatcher";
 import { setI18nConfig } from "../locales/i8n";
 import { LiveSearch } from "./LiveSearch";
 import { SiteType } from "../enum";
-import {H} from "vite/dist/node/types.d-aGj9QkWt";
 
 let contentConfig: SettingConfig | null = null;
 let liveControl = null;

@@ -1,6 +1,6 @@
-import { createDocumentEl } from "../utils/util";
+import { createDocumentEl, getImageSrc } from "../utils/util";
 import { i18Text } from "../locales/i8n";
-
+import loadingSvg from "/public/loading.svg";
 export type SearchPageType = {
   pageIndex: number;
   pageSize: number;
@@ -15,6 +15,7 @@ export class SearchPanel {
   finish: boolean;
   finishText: HTMLElement;
   loading: boolean;
+  loadingIcon: HTMLElement | null;
   constructor(opt) {
     this.class = "lce-search-panel";
     this.chatRecord = [];
@@ -30,6 +31,7 @@ export class SearchPanel {
       classList: [this.class + "-finish"],
       append: [i18Text("noMore")],
     });
+    this.loadingIcon = createDocumentEl("div", {classList: ['lce-search-panel-loading']});
     this.loading = false;
   }
   create() {
@@ -64,7 +66,7 @@ export class SearchPanel {
       this.chatRecord = [];
     }
     if (this.finish) return;
-    this.loading = true;
+    this.setLoading(true);
     this.onNext(this.searchPage)
       .then((res) => {
         const len = res.length;
@@ -83,10 +85,10 @@ export class SearchPanel {
       })
       .catch((e) => {
         this.finish = true;
-        console.error(e)
+        console.error(e);
       })
       .finally(() => {
-        this.loading = false;
+        this.setLoading(false)
       });
     this.searchPage.pageIndex++;
   }
@@ -112,6 +114,19 @@ export class SearchPanel {
       this.dom?.append(this.finishText);
     } else {
       this.finishText?.remove();
+    }
+  }
+  setLoading(load: boolean) {
+    this.loading = load;
+    if (this.loading && this.loadingIcon) {
+      const url = getImageSrc(loadingSvg);
+      if (!url) return;
+      this.loadingIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid" width="50" height="50" style="shape-rendering: auto; display: block; background: rgb(255, 255, 255);" xmlns:xlink="http://www.w3.org/1999/xlink"><g><path stroke="none" fill="#00cc99" d="M10 50A40 40 0 0 0 90 50A40 42 0 0 1 10 50">
+  <animateTransform values="0 50 51;360 50 51" keyTimes="0;1" repeatCount="indefinite" dur="1s" type="rotate" attributeName="transform"></animateTransform>
+</path><g></g></g></svg>`;
+      this.dom?.append(this.loadingIcon);
+    } else {
+      this.loadingIcon?.remove();
     }
   }
 }
