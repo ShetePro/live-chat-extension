@@ -1,5 +1,6 @@
-import { createDocumentEl, getImageSrc } from "../utils/util";
+import { createDocumentEl } from "../utils/util";
 import { i18Text } from "../locales/i8n";
+import { ChatMessageType } from "../modules/IDB/type";
 export type SearchPageType = {
   pageIndex: number;
   pageSize: number;
@@ -65,7 +66,7 @@ export class SearchPanel {
   }
   show() {
     this.dom?.classList.add("show-panel");
-    this.finish = false;
+    this.setFinishText(false);
     this.chatRecord = [];
     this.searchPage.pageIndex = 1;
     this.search();
@@ -74,11 +75,21 @@ export class SearchPanel {
     this.dom?.classList.remove("show-panel");
     this.chatRecord = [];
     this.searchPage.pageIndex = 1;
-    this.finish = false;
+    this.setFinishText(false);
+    setTimeout(() => {
+      this.listDom.innerHTML = "";
+    });
+  }
+  updateRecord(msg: ChatMessageType) {
+    this.chatRecord.push(msg);
+    this.setFinishText(false);
+    this.renderMessages([msg]);
+    this.setFinishText(true);
   }
   search({ next } = {}) {
     if (!next) {
       this.chatRecord = [];
+      this.listDom.innerHTML = "";
     }
     if (this.finish) return;
     this.setLoading(true);
@@ -86,20 +97,18 @@ export class SearchPanel {
       .then((res) => {
         const len = res.length;
         if (len === 0 && next) {
-          this.finish = true;
-          this.setFinishText();
+          this.setFinishText(true);
           return;
         } else if (len < this.searchPage.pageSize) {
-          this.finish = true;
-          this.setFinishText();
+          this.setFinishText(true);
         } else {
-          this.finish = false;
+          this.setFinishText(false);
         }
         this.chatRecord = [...this.chatRecord, ...res];
-        this.renderMessages();
+        this.renderMessages(res);
       })
       .catch((e) => {
-        this.finish = true;
+        this.setFinishText(true);
         console.error(e);
       })
       .finally(() => {
@@ -107,14 +116,13 @@ export class SearchPanel {
       });
     this.searchPage.pageIndex++;
   }
-  renderMessages() {
+  renderMessages(list: ChatMessageType[]) {
     if (!this.listDom) return;
-    this.listDom.innerHTML = "";
     this.listDom.setAttribute(
       "style",
       `flex: ${this.chatRecord.length === 0 ? 0 : 1}`,
     );
-    const itemList = this.chatRecord.map((msg) => {
+    const itemList = list.map((msg) => {
       const item = createDocumentEl("div", {
         classList: ["lce-search-panel-message"],
       });
@@ -126,12 +134,11 @@ export class SearchPanel {
       return item;
     });
     this.listDom.append(...itemList);
-    this.setFinishText();
   }
-  setFinishText() {
+  setFinishText(finish: boolean) {
+    this.finish = finish;
     if (this.finish) {
       this.listDom?.append(this.finishText);
-      console.log(this.finish, "set finish");
     } else {
       this.finishText?.remove();
     }

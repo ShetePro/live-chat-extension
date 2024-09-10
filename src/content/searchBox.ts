@@ -3,6 +3,7 @@ import { SearchPageType, SearchPanel } from "./searchPanel";
 import { BasicIndexDb } from "../modules/IDB/indexDb";
 import { SearchType, SiteType } from "../enum";
 import { i18Text } from "../locales/i8n";
+import { ChatMessageType } from "../modules/IDB/type";
 
 type SearchBoxOption = {
   indexDb: BasicIndexDb;
@@ -140,9 +141,16 @@ export class SearchBox {
       console.log("start");
       this.cnFlag = true;
     });
-    box.addEventListener("input", debounce((e) => {
-      this.searchTextEvent(e)
-    }, 200, this));
+    box.addEventListener(
+      "input",
+      debounce(
+        (e) => {
+          this.searchTextEvent(e);
+        },
+        200,
+        this,
+      ),
+    );
     box.addEventListener("compositionend", () => {
       console.log("end");
       this.cnFlag = false;
@@ -190,6 +198,9 @@ export class SearchBox {
     if (!this.cnFlag) {
       this.search();
     }
+  }
+  updateSearchPanelMessage(msg: ChatMessageType) {
+    this.searchPanel?.updateRecord(msg);
   }
   searchByIndexedDB({ pageIndex = 1, pageSize = 20 }: SearchPageType) {
     return new Promise((resolve, reject) => {

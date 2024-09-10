@@ -121,7 +121,7 @@ export abstract class LiveSearch {
           }
           // 高亮
           this.highLight().then(() => {
-            console.log(this.searchList.length)
+            console.log(this.searchList.length);
             resolve({ index, total: this.searchList.length });
           });
         } else {
@@ -168,6 +168,8 @@ export abstract class LiveSearch {
           if (add) {
             // 高亮
             this.highLightMsg(lastMsg);
+            const msg = this.getChatMessageParams(lastMsg);
+            this.searchBox?.updateSearchPanelMessage(msg);
             this.searchText && this.clearRemoveMsgNode();
             if (this.searchBox) {
               this.searchBox.total = this.searchList.length;
@@ -181,7 +183,11 @@ export abstract class LiveSearch {
     });
   }
   pushMsgDatabase(msg) {
-    const params: ChatMessageType = {
+    const params: ChatMessageType = this.getChatMessageParams(msg);
+    params.text && this.indexDb?.push(params);
+  }
+  getChatMessageParams(msg): ChatMessageType {
+    return {
       user: this.getNameSpanByMsg(msg)?.innerText,
       text: this.getChatSpanByMsg(msg)?.innerText,
       timestamp: new Date().getTime(),
@@ -189,7 +195,6 @@ export abstract class LiveSearch {
       liveId: this.liveId || "",
       liveName: this.liveName || "",
     };
-    params.text && this.indexDb?.push(params);
   }
   getScrollBar() {
     let list = document.body.querySelector("#chatRoom");
