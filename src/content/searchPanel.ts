@@ -1,6 +1,5 @@
 import { createDocumentEl, getImageSrc } from "../utils/util";
 import { i18Text } from "../locales/i8n";
-import loadingSvg from "/public/loading.svg";
 export type SearchPageType = {
   pageIndex: number;
   pageSize: number;
@@ -9,6 +8,8 @@ export class SearchPanel {
   class: string;
   chatRecord: any[];
   dom: HTMLElement | null;
+  listDom: HTMLElement;
+  headerDom: HTMLElement;
   onNext: (params: SearchPageType) => Promise<any[]>;
   searchPage: SearchPageType;
   offsetTop: number;
@@ -20,6 +21,15 @@ export class SearchPanel {
     this.class = "lce-search-panel";
     this.chatRecord = [];
     this.dom = null;
+    this.headerDom = createDocumentEl("div", {
+      classList: ["lce-search-panel-header"],
+    });
+    // this.bottomDom = createDocumentEl("div", {
+    //   classList: ["lce-search-panel-bottom"],
+    // });
+    this.listDom = createDocumentEl("div", {
+      classList: ["lce-search-panel-list"],
+    });
     this.onNext = opt.onNext;
     this.searchPage = {
       pageIndex: 1,
@@ -31,11 +41,16 @@ export class SearchPanel {
       classList: [this.class + "-finish"],
       append: [i18Text("noMore")],
     });
-    this.loadingIcon = createDocumentEl("div", {classList: ['lce-search-panel-loading']});
+    this.loadingIcon = createDocumentEl("div", {
+      classList: ["lce-search-panel-loading"],
+    });
     this.loading = false;
   }
   create() {
-    this.dom = createDocumentEl("div", { classList: [this.class] });
+    this.dom = createDocumentEl("div", {
+      classList: [this.class],
+      append: [this.headerDom, this.listDom],
+    });
     this.dom.addEventListener("scroll", (e) => {
       const viewHeight = this.dom?.clientHeight;
       const target = e.target as Element;
@@ -88,13 +103,17 @@ export class SearchPanel {
         console.error(e);
       })
       .finally(() => {
-        this.setLoading(false)
+        this.setLoading(false);
       });
     this.searchPage.pageIndex++;
   }
   renderMessages() {
-    if (!this.dom) return;
-    this.dom.innerHTML = "";
+    if (!this.listDom) return;
+    this.listDom.innerHTML = "";
+    this.listDom.setAttribute(
+      "style",
+      `flex: ${this.chatRecord.length === 0 ? 0 : 1}`,
+    );
     const itemList = this.chatRecord.map((msg) => {
       const item = createDocumentEl("div", {
         classList: ["lce-search-panel-message"],
@@ -106,12 +125,13 @@ export class SearchPanel {
       item.append(text);
       return item;
     });
-    this.dom.append(...itemList);
+    this.listDom.append(...itemList);
     this.setFinishText();
   }
   setFinishText() {
     if (this.finish) {
-      this.dom?.append(this.finishText);
+      this.listDom?.append(this.finishText);
+      console.log(this.finish, "set finish");
     } else {
       this.finishText?.remove();
     }
@@ -119,12 +139,10 @@ export class SearchPanel {
   setLoading(load: boolean) {
     this.loading = load;
     if (this.loading && this.loadingIcon) {
-      const url = getImageSrc(loadingSvg);
-      if (!url) return;
       this.loadingIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid" width="50" height="50" style="shape-rendering: auto; display: block; background: rgb(255, 255, 255);" xmlns:xlink="http://www.w3.org/1999/xlink"><g><path stroke="none" fill="#00cc99" d="M10 50A40 40 0 0 0 90 50A40 42 0 0 1 10 50">
-  <animateTransform values="0 50 51;360 50 51" keyTimes="0;1" repeatCount="indefinite" dur="1s" type="rotate" attributeName="transform"></animateTransform>
+  <animateTransform values="0 50 51; 180 50 51; 360 50 51" keyTimes="0; 0.5; 1" repeatCount="indefinite" dur="1s" type="rotate" attributeName="transform"></animateTransform>
 </path><g></g></g></svg>`;
-      this.dom?.append(this.loadingIcon);
+      this.listDom?.append(this.loadingIcon);
     } else {
       this.loadingIcon?.remove();
     }

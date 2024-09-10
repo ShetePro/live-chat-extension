@@ -1,3 +1,4 @@
+@import "searchPanel.css";
 .lce-watch-chat-list {
   border-color: red;
 }
@@ -151,45 +152,4 @@
     -webkit-transform: rotateX(-180deg);
     transform: rotateX(-180deg);
   }
-}
-.lce-search-panel {
-  display: flex;
-  flex-direction: column;
-  position: absolute;
-  top: 100%;
-  width: calc(100% - 20px);
-  height: 300px;
-  transition: all 0.4s ease;
-  margin-top: 10px;
-  padding-top: 10px;
-  border-radius: 10px;
-  background-color: white;
-  opacity: 0;
-  user-select: none;
-  pointer-events: none;
-  overflow-y: auto;
-  .lce-search-panel-message {
-    display: flex;
-    flex-direction: row;
-    padding: 10px;
-  }
-  .lce-search-panel-finish {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    padding: 10px;
-    color: #999999;
-  }
-  .lce-search-panel-loading {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    flex-grow: 1;
-  }
-}
-.lce-search-panel.show-panel {
-  opacity: 1;
-  pointer-events: auto;
 }
