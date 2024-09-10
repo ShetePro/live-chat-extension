@@ -1,9 +1,8 @@
-import { createDocumentEl } from "../utils/util";
-import i18next from "i18next";
-import {SearchPageType, SearchPanel} from "./searchPanel";
+import { createDocumentEl, debounce } from "../utils/util";
+import { SearchPageType, SearchPanel } from "./searchPanel";
 import { BasicIndexDb } from "../modules/IDB/indexDb";
 import { SearchType, SiteType } from "../enum";
-import {i18Text} from "../locales/i8n";
+import { i18Text } from "../locales/i8n";
 
 type SearchBoxOption = {
   indexDb: BasicIndexDb;
@@ -141,7 +140,9 @@ export class SearchBox {
       console.log("start");
       this.cnFlag = true;
     });
-    box.addEventListener("input", (e) => this.searchTextEvent(e));
+    box.addEventListener("input", debounce((e) => {
+      this.searchTextEvent(e)
+    }, 200, this));
     box.addEventListener("compositionend", () => {
       console.log("end");
       this.cnFlag = false;
@@ -224,7 +225,6 @@ export class SearchBox {
         this.index = index;
         this.total = total;
         this.renderTotal();
-
         console.log("收到", index, total);
       });
   }

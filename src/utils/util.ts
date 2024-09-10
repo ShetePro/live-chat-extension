@@ -85,9 +85,19 @@ export function observerListPush(
 }
 
 // 获取静态资源地址 解决浏览器插件和页面中的地址冲突
-export function getImageSrc (src: string): string | null {
+export function getImageSrc(src: string): string | null {
   if (src) {
-    return chrome.runtime.getURL(src)
+    return chrome.runtime.getURL(src);
   }
-  return null
+  return null;
+}
+
+export function debounce<T>(callback: (arg: T) => void, wait: number, that?: any): (arg: T) => void {
+  let timeout;
+  return (arg) => {
+    timeout && clearTimeout(timeout);
+    timeout = setTimeout(() => {
+      callback.apply(that || this, arg);
+    }, wait);
+  };
 }
