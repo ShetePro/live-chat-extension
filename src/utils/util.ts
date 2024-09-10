@@ -97,7 +97,7 @@ export function debounce<T>(callback: (arg: T) => void, wait: number, that?: any
   return (arg) => {
     timeout && clearTimeout(timeout);
     timeout = setTimeout(() => {
-      callback.apply(that || this, arg);
+      callback.call(that || this, arg);
     }, wait);
   };
 }
