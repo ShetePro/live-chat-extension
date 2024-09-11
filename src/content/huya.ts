@@ -6,14 +6,14 @@ import { LiveSearch } from "./LiveSearch";
 import {SiteType} from "../enum";
 
 let contentConfig: SettingConfig | null = null;
-let liveControl = null;
+let liveControl: any = null;
 setTimeout(() => {
   getConfig().then(({ value }) => {
     contentConfig = value;
     init();
   });
 }, 2000);
-watchConfig((request) => {
+watchConfig((request: SettingConfig) => {
   contentConfig = request;
   init();
 });
@@ -34,7 +34,7 @@ function searchInit() {
   liveControl = new HuyaSearch(contentConfig);
 }
 export class HuyaSearch extends LiveSearch {
-  constructor(config) {
+  constructor(config: any) {
     super(config);
     // 设置chat list 选择器
     this.listSelector = "#chat-room__list";
@@ -45,15 +45,15 @@ export class HuyaSearch extends LiveSearch {
     this.init();
   }
 
-  getNameSpanByMsg(msg) {
-    return msg?.querySelector(".name");
+  getNameSpanByMsg(msg: HTMLElement) {
+    return msg?.querySelector(".name") as HTMLElement;
   }
   // 获取内容span
-  getChatSpanByMsg(msg) {
-    return msg?.querySelector(".msg");
+  getChatSpanByMsg(msg: HTMLElement) {
+    return msg?.querySelector(".msg") as HTMLElement;
   }
   // 重写查询定位
-  scrollTo(index) {
+  scrollTo(index: number): Promise<void> {
     return new Promise((resolve, reject) => {
       const textDom = this.searchList[index - 1];
       if (!this.chatListDom) return
@@ -62,13 +62,13 @@ export class HuyaSearch extends LiveSearch {
         reject();
         return;
       }
-      const scrollBar = this.getScrollBar();
       this.searchTextTop = textDom.offsetTop;
       const offset = Math.max(0, textDom.offsetTop - 300);
+      const chatListDom = this.chatListDom as HTMLElement
       const top =
-        this.chatListDom?.style.top === "auto"
-          ? this.chatListDom.offsetHeight
-          : Math.abs(parseInt(this.chatListDom?.style.top));
+        chatListDom?.style.top === "auto"
+          ? chatListDom.offsetHeight
+          : Math.abs(parseInt(chatListDom?.style.top));
       this.scrollView(textDom, {
         offset,
         direction: offset <= Math.abs(top) ? -1 : 1,
@@ -76,15 +76,16 @@ export class HuyaSearch extends LiveSearch {
       resolve();
     });
   }
-  scrollView(textDom, { offset, direction = -1 }) {
+  scrollView(textDom: HTMLElement, { offset, direction = -1 }: any) {
+    const chatListDom = this.chatListDom as HTMLElement
     const top =
-      this.chatListDom?.style.top === "auto"
+      chatListDom?.style.top === "auto"
         ? 0
-        : Math.abs(parseInt(this.chatListDom?.style.top));
-    if (direction === -1 && this.chatListDom?.style.top === "0px") {
+        : Math.abs(parseInt(chatListDom?.style.top));
+    if (direction === -1 && chatListDom?.style.top === "0px") {
       return;
     }
-    if (direction === 1 && this.chatListDom?.style.top === "auto") {
+    if (direction === 1 && chatListDom?.style.top === "auto") {
       return;
     }
     const event = new WheelEvent("wheel", {

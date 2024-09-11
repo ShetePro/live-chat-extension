@@ -1,6 +1,6 @@
 import { setConfig } from "../../utils/util";
-import { SearchType } from "../../enum";
-import { ChatMessageType, IDBEvent, SearchChatPageParams } from "./type";
+import { SearchType, SiteType } from "../../enum";
+import { ChatMessageType, SearchChatPageParams } from "./type";
 
 export class BasicIndexDb {
   indexDb: IDBDatabase;
@@ -20,7 +20,7 @@ export class BasicIndexDb {
         reject(event);
       };
       this.request.onsuccess = (event) => {
-        const target = event.target as { result: IDBDatabase };
+        const target = event.target as { result: IDBDatabase } & EventTarget;
         this.indexDb = target.result;
         // 开启自动清除逻辑
         if (requestIdleCallback) {
@@ -34,30 +34,37 @@ export class BasicIndexDb {
         }
         resolve(this.indexDb);
       };
-      this.request.onupgradeneeded = (event: IDBEvent) => {
-        const db = event.target.result;
+      const that = this;
+      this.request.onupgradeneeded = function (this: IDBOpenDBRequest) {
+        const { result } = this;
+        const db = result;
         let objectStore;
-        if (!db.objectStoreNames.contains(this.objectStoreNames)) {
-          objectStore = db.createObjectStore(this.objectStoreNames, {
+        if (!db.objectStoreNames.contains(that.objectStoreNames)) {
+          objectStore = db.createObjectStore(that.objectStoreNames, {
             keyPath: "id",
             autoIncrement: true,
           });
         } else {
-          objectStore = event.target.result
-            .transaction(this.objectStoreNames, "readwrite")
-            .objectStore(this.objectStoreNames);
+          objectStore = result
+            .transaction(that.objectStoreNames, "readwrite")
+            .objectStore(that.objectStoreNames);
         }
         // 创建索引，如果不存在的话
-        this.createIndex(objectStore, "listType", ["siteType", "liveId"], {
+        that.createIndex(objectStore, "listType", ["siteType", "liveId"], {
           unique: false,
         });
-        this.createIndex(objectStore, "createTime", ["timestamp"], {
+        that.createIndex(objectStore, "createTime", ["timestamp"], {
           unique: false,
         });
       };
     });
   }
-  createIndex(objectStore, name, keyPath, option) {
+  createIndex(
+    objectStore: IDBObjectStore,
+    name: string,
+    keyPath: string[],
+    option?: IDBIndexParameters
+  ) {
     // 创建索引，如果不存在的话
     if (!objectStore.indexNames.contains(name)) {
       objectStore.createIndex(name, keyPath, option);
@@ -68,26 +75,27 @@ export class BasicIndexDb {
       ?.transaction(this.objectStoreNames, "readwrite")
       .objectStore(this.objectStoreNames);
   }
-  // 判断该条消息是否存在
-  has(item) {}
   push(item: ChatMessageType) {
     return new Promise((resolve, reject) => {
       try {
         const objectStore = this.getObjectStore();
-        const request = objectStore.add(item);
-        request.onsuccess = (event: IDBEvent) => {
-          resolve(event.target?.result);
+        const request: IDBRequest<IDBValidKey> = objectStore.add(item);
+        request.onsuccess = function (this: IDBRequest<IDBValidKey>) {
+          const { result } = this;
+          resolve(result);
         };
-        request.onerror = (event: IDBEvent) => {
-          reject(event);
+        request.onerror = function (this: IDBRequest<IDBValidKey>, ev: Event) {
+          reject(ev);
         };
-      } catch (e) {
-        if (e.name === "QuotaExceededError") {
-          // 处理存储空间不足的情况，例如删除旧数据或提示用户
-          console.error("Storage limit exceeded! Cannot add more data.");
-          setConfig({ QuotaExceededError: true });
-        } else {
-          console.error("Unexpected error:", e);
+      } catch (e: unknown) {
+        if (e instanceof Error) {
+          if (e.name === "QuotaExceededError") {
+            // 处理存储空间不足的情况，例如删除旧数据或提示用户
+            console.error("Storage limit exceeded! Cannot add more data.");
+            setConfig({ QuotaExceededError: true });
+          } else {
+            console.error("Unexpected error:", e);
+          }
         }
       }
     });
@@ -100,7 +108,7 @@ export class BasicIndexDb {
     liveId = "",
     text = "",
     type = SearchType.message,
-  }: SearchChatPageParams) {
+  }: SearchChatPageParams): Promise<ChatMessageType[]> {
     return new Promise((resolve, reject) => {
       let keyRange = IDBKeyRange.only([siteType, liveId]);
       const objectStore = this.getObjectStore();
@@ -111,13 +119,20 @@ export class BasicIndexDb {
         console.log("readSourceLibRecord 事务失败");
         reject(event);
       };
-      const result = [];
+      const result: ChatMessageType[] = [];
       const start = (pageIndex - 1) * pageSize;
       const end = pageIndex * pageSize;
       let count = 0;
       let skipCount = (pageIndex - 1) * pageSize;
-      request.onsuccess = function (e: IDBEvent) {
-        let cursor = e.target.result;
+      request.onsuccess = function (
+        this: IDBRequest<IDBCursorWithValue>,
+        ev: Event
+      ) {
+        console.log(this, ev);
+        // const { result: cursor } = ev.target as {
+        //   result: IDBCursorWithValue;
+        // } & EventTarget;
+        const cursor = this.result;
         if (cursor) {
           const { value } = cursor;
           const content = type === SearchType.message ? value.text : value.user;
@@ -155,8 +170,9 @@ export class BasicIndexDb {
     // 定义删除范围
     const keyRange = IDBKeyRange.upperBound([timeThreshold]);
     const cursorRequest = index.openCursor(keyRange);
-    cursorRequest.onsuccess = function (event: IDBEvent) {
-      const cursor = event.target.result;
+    cursorRequest.onsuccess = function (this) {
+      const { result } = this;
+      const cursor = result;
       if (cursor) {
         cursor.delete();
         cursor.continue(); // 继续到下一个记录
@@ -167,15 +183,15 @@ export class BasicIndexDb {
       console.error("Cursor error:", event);
     };
   }
-  clearBySearch({ liveId, siteType }) {
+  clearBySearch({ liveId, siteType }: { liveId: string; siteType: SiteType }) {
     const db = this.indexDb;
     let keyRange = IDBKeyRange.only([siteType, liveId]);
     // 开启一个读写事务
     const objectStore = this.getObjectStore();
     let index = objectStore.index("listType"); //索引的意义在于，可以让你搜索任意字段，也就是说从任意字段拿到数据记录
     let request = index.openCursor(keyRange);
-    request.onsuccess = function (event: IDBEvent) {
-      let cursor = event.target.result;
+    request.onsuccess = function (this) {
+      let cursor = this.result;
       cursor?.delete();
     };
   }

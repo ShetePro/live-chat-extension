@@ -9,10 +9,7 @@ type SearchBoxOption = {
   indexDb: BasicIndexDb;
   x: number;
   y: number;
-  searchCallback: ({
-    text: string,
-    type: number,
-  }) => Promise<{ index: number; total: number }>;
+  searchCallback: (data: any) => Promise<{ index: number; total: number }>;
   position: (index: number) => Promise<any>;
   liveId: string;
   siteType: SiteType;
@@ -31,14 +28,14 @@ export class SearchBox {
   cnFlag: boolean;
   searchBox: HTMLElement;
   searchPanel: SearchPanel | null;
-  constructor(opt) {
+  constructor(opt: SearchBoxOption) {
     this.option = opt;
     this.isSearch = false;
     this.indexDb = opt.indexDb;
     this.searchText = "";
     this.index = 0;
     this.total = 0;
-    this.type = opt.type || SearchType.message;
+    this.type = SearchType.message;
     this.offset = {};
     this.x = opt.x || 0;
     this.y = opt.y || 0;
@@ -51,7 +48,7 @@ export class SearchBox {
     });
   }
   // 拖拽事件
-  drag(e) {
+  drag(e: MouseEvent) {
     const { x, y } = e;
     const maxX = window.innerWidth - this.searchBox?.clientWidth;
     const maxY = window.innerHeight - this.searchBox?.clientHeight;
@@ -78,7 +75,7 @@ export class SearchBox {
     this.renderInput();
     this.renderTotal();
     this.renderBtn();
-    const moveCallback = (e) => this.drag(e);
+    const moveCallback = (e: MouseEvent) => this.drag(e);
     // 设置拖拽移动
     this.searchBox.addEventListener(
       "mousedown",
@@ -144,7 +141,7 @@ export class SearchBox {
     box.addEventListener(
       "input",
       debounce(
-        (e) => {
+        (e: Event) => {
           this.searchTextEvent(e);
         },
         200,
@@ -192,8 +189,9 @@ export class SearchBox {
     previous.addEventListener("click", () => this.previous());
     this.searchBox?.append(group);
   }
-  searchTextEvent(e) {
-    this.searchText = e.target.value;
+  searchTextEvent(e: Event) {
+    const {value} = e.target as {value: string } & EventTarget
+    this.searchText = value;
     this.isSearch = this.searchText?.length > 0;
     if (!this.cnFlag) {
       this.search();
@@ -202,7 +200,7 @@ export class SearchBox {
   updateSearchPanelMessage(msg: ChatMessageType) {
     this.searchPanel?.updateRecord(msg);
   }
-  searchByIndexedDB({ pageIndex = 1, pageSize = 20 }: SearchPageType) {
+  searchByIndexedDB({ pageIndex = 1, pageSize = 20 }: SearchPageType): Promise<ChatMessageType[]> {
     return new Promise((resolve, reject) => {
       // 数据库查询逻辑
       this.indexDb
@@ -232,7 +230,7 @@ export class SearchBox {
     // dom查询逻辑
     this.option
       .searchCallback({ text: this.searchText, type: this.type })
-      .then(({ index, total, messages }) => {
+      .then(({ index, total }) => {
         this.index = index;
         this.total = total;
         this.renderTotal();

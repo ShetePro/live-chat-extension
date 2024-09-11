@@ -4,6 +4,7 @@ type CreateDomOption = {
 };
 
 type SettingConfig = {
+  key: string;
   isOpen: boolean;
   defaultOpen: boolean;
   language: string;
@@ -13,3 +14,5 @@ type SettingConfig = {
 type ConfigResponse = {
   value: SettingConfig
 }
+
+type MessageElement = HTMLElement | Node | Element 

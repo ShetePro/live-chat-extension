@@ -1,6 +1,6 @@
 export function createDocumentEl<K extends keyof HTMLElementTagNameMap>(
   tag: K,
-  option?: CreateDomOption,
+  option?: CreateDomOption
 ): HTMLElementTagNameMap[K] {
   const { classList = [], append = [] } = option || {};
   const dom = document.createElement(tag);
@@ -17,7 +17,7 @@ export function getConfig(): Promise<ConfigResponse> {
         (response) => {
           console.log("config data:", response);
           resolve(response as ConfigResponse);
-        },
+        }
       );
     } catch (e) {
       reject(e);
@@ -25,7 +25,10 @@ export function getConfig(): Promise<ConfigResponse> {
   });
 }
 // 修改配置信息
-export function setConfig(value: Record<string, any>, props: null | {} = null) {
+export function setConfig(
+  value: Record<string, any>,
+  props?: Record<string, any>
+) {
   return new Promise((resolve, reject) => {
     try {
       const { merge = true } = props || {
@@ -42,7 +45,7 @@ export function setConfig(value: Record<string, any>, props: null | {} = null) {
         },
         (response) => {
           resolve(response);
-        },
+        }
       );
     } catch (e) {
       reject(e);
@@ -55,14 +58,14 @@ export function highLightText(search: string, text: string, color: string) {
   const regex = new RegExp(search, "g");
   return text.replace(
     regex,
-    `<span style="background: ${color}">${search}</span>`,
+    `<span style="background: ${color}">${search}</span>`
   );
 }
 
 // watch chat list message push
 export function observerListPush(
   dom: Element,
-  callback: (mutation: MutationRecord) => void,
+  callback: (mutation: MutationRecord) => void
 ) {
   if (dom?.nodeType === 1) {
     const observer = new MutationObserver((mutationsList, observer) => {
@@ -91,13 +94,44 @@ export function getImageSrc(src: string): string | null {
   }
   return null;
 }
-
-export function debounce<T>(callback: (arg: T) => void, wait: number, that?: any): (arg: T) => void {
-  let timeout;
-  return (arg) => {
+export function debounce<T>(
+  callback: (arg: T) => void,
+  wait: number,
+  that?: any
+): (arg: T) => void {
+  let timeout: number | undefined;
+  return function (this: any, arg) {
     timeout && clearTimeout(timeout);
     timeout = setTimeout(() => {
       callback.call(that || this, arg);
     }, wait);
   };
+}
+export function is(val: any, type: string) {
+  return toString.call(val) === `[object ${type}]`;
+}
+
+export function isArray(val: any) {
+  return val && Array.isArray(val);
+}
+export function isEmpty(val: any) {
+  if (isArray(val) || isString(val)) {
+    return val.length === 0;
+  }
+
+  if (val instanceof Map || val instanceof Set) {
+    return val.size === 0;
+  }
+
+  if (isObject(val)) {
+    return Object.keys(val).length === 0;
+  }
+
+  return false;
+}
+export function isObject(val: any) {
+  return val !== null && is(val, "Object");
+}
+export function isString(val: any) {
+  return is(val, "String");
 }

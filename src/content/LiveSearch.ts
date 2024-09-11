@@ -17,20 +17,20 @@ export abstract class LiveSearch {
   searchText: string;
   searchType: SearchType;
   searchTextTop: number;
-  iframe: HTMLIFrameElement | null;
-  chatListDom: HTMLElement | null;
+  iframe: HTMLIFrameElement | null | undefined;
+  chatListDom: HTMLElement | Element | null;
   listSelector: string;
   indexDb: BasicIndexDb | null;
   liveId: string;
   liveName: string;
-  siteType: SiteType;
-  href: string;
+  siteType: SiteType | undefined;
+  href: string | string[];
   // 获取用户名span
-  abstract getNameSpanByMsg(msg): HTMLElement;
+  abstract getNameSpanByMsg(msg: MessageElement): HTMLElement;
   // 获取内容span
-  abstract getChatSpanByMsg(msg): HTMLElement;
-  abstract scrollTo(msg): Promise<any>;
-  constructor(config) {
+  abstract getChatSpanByMsg(msg: MessageElement): HTMLElement;
+  abstract scrollTo(index: number): Promise<any>;
+  constructor(config: SettingConfig) {
     this.contentConfig = config;
     this.liveData = [];
     this.observer = null;
@@ -56,8 +56,9 @@ export abstract class LiveSearch {
   init() {
     // biliBili有些活动会使用iframe 嵌套直播间
     if (!this.chatListDom) {
-      const iframes = document.body.querySelectorAll("iframe");
-      for (const iframe of iframes) {
+      const iframes: NodeListOf<HTMLIFrameElement> =
+        document.body.querySelectorAll("iframe");
+      iframes.forEach((iframe) => {
         let list = iframe.contentDocument?.querySelector(this.listSelector);
         if (list) {
           this.chatListDom = list as HTMLElement;
@@ -66,12 +67,12 @@ export abstract class LiveSearch {
         } else {
           this.awaitIframeLoad(iframe);
         }
-      }
+      });
     } else {
       this.renderSearch();
     }
   }
-  awaitIframeLoad(iframe) {
+  awaitIframeLoad(iframe: HTMLIFrameElement) {
     if (iframe.contentDocument) {
       iframe.addEventListener("load", () => {
         const list = iframe.contentDocument?.querySelector(this.listSelector);
@@ -84,16 +85,15 @@ export abstract class LiveSearch {
     }
   }
   renderSearch() {
-    const { bottom, left, width, top } =
-      this.chatListDom?.getBoundingClientRect();
+    const { left, top } = this.chatListDom?.getBoundingClientRect();
     this.searchBox = new SearchBox({
       indexDb: this.indexDb,
       x: left + 10,
       y: top,
       liveId: this.liveId,
       siteType: this.siteType,
-      searchCallback: (data) => this.search(data),
-      position: (index) => this.scrollTo(index),
+      searchCallback: (data: any) => this.search(data),
+      position: (index: number) => this.scrollTo(index),
     });
     this.searchBox.renderSearch();
     this.indexDb?.init().then(() => {
@@ -107,9 +107,17 @@ export abstract class LiveSearch {
     this.observer?.disconnect();
     this.indexDb = null;
   }
-  search({ text, index = 0, type }) {
+  search({
+    text,
+    index = 0,
+    type,
+  }: {
+    text: string;
+    index: number;
+    type: SearchType;
+  }): Promise<{ index: number; total: number }> {
     return new Promise(async (resolve, reject) => {
-      const list = this.chatListDom?.children;
+      const list: HTMLCollection = this.chatListDom?.children;
       this.searchType = type;
       try {
         await this.clearHighLight();
@@ -135,12 +143,12 @@ export abstract class LiveSearch {
       }
     });
   }
-  pushMsgBySearch(msg) {
+  pushMsgBySearch(msg: MessageElement) {
     const name = this.getNameSpanByMsg(msg)?.innerText;
     const text = this.getChatSpanByMsg(msg)?.innerText;
     if (
       (this.searchType === SearchType.user ? name : text)?.indexOf(
-        this.searchText,
+        this.searchText
       ) >= 0
     ) {
       this.searchList.push(msg);
@@ -162,13 +170,13 @@ export abstract class LiveSearch {
     if (this.observer || !this.chatListDom) return;
     this.observer = observerListPush(this.chatListDom, (mutation) => {
       const { addedNodes } = mutation;
-      addedNodes?.forEach((lastMsg) => {
+      addedNodes?.forEach((lastMsg: MessageElement) => {
         if (this.searchText) {
-          const add = this.pushMsgBySearch(lastMsg);
+          const add = this.pushMsgBySearch(lastMsg as MessageElement);
           if (add) {
             // 高亮
-            this.highLightMsg(lastMsg);
-            const msg = this.getChatMessageParams(lastMsg);
+            this.highLightMsg(lastMsg as MessageElement);
+            const msg = this.getChatMessageParams(lastMsg as MessageElement);
             this.searchBox?.updateSearchPanelMessage(msg);
             this.searchText && this.clearRemoveMsgNode();
             if (this.searchBox) {
@@ -178,15 +186,15 @@ export abstract class LiveSearch {
           }
         }
         // 默认将聊天内容记录在indexDb
-        this.pushMsgDatabase(lastMsg);
+        this.pushMsgDatabase(lastMsg as MessageElement);
       });
     });
   }
-  pushMsgDatabase(msg) {
+  pushMsgDatabase(msg: MessageElement) {
     const params: ChatMessageType = this.getChatMessageParams(msg);
     params.text && this.indexDb?.push(params);
   }
-  getChatMessageParams(msg): ChatMessageType {
+  getChatMessageParams(msg: MessageElement): ChatMessageType {
     return {
       user: this.getNameSpanByMsg(msg)?.innerText,
       text: this.getChatSpanByMsg(msg)?.innerText,
@@ -203,7 +211,7 @@ export abstract class LiveSearch {
     }
     return list?.querySelector(".scroll_move");
   }
-  highLight() {
+  highLight(): Promise<void> {
     return new Promise((resolve) => {
       this.searchList.forEach((item) => {
         this.highLightMsg(item);
@@ -212,7 +220,7 @@ export abstract class LiveSearch {
     });
   }
   // 自定义高亮
-  highLightMsg(item) {
+  highLightMsg(item: MessageElement) {
     const span =
       this.searchType === SearchType.user
         ? this.getNameSpanByMsg(item)
@@ -232,7 +240,7 @@ export abstract class LiveSearch {
   }
   // 自定义取消高亮
   clearHighLight() {
-    return new Promise((resolve) => {
+    return new Promise<void>((resolve) => {
       this.searchList.forEach((item) => {
         const span =
           this.searchType === SearchType.user

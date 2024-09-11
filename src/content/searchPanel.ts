@@ -1,6 +1,9 @@
 import { createDocumentEl } from "../utils/util";
 import { i18Text } from "../locales/i8n";
 import { ChatMessageType } from "../modules/IDB/type";
+export type SearchPageOption = {
+  onNext: (params: SearchPageType) => Promise<ChatMessageType[]>
+};
 export type SearchPageType = {
   pageIndex: number;
   pageSize: number;
@@ -11,14 +14,14 @@ export class SearchPanel {
   dom: HTMLElement | null;
   listDom: HTMLElement;
   headerDom: HTMLElement;
-  onNext: (params: SearchPageType) => Promise<any[]>;
+  onNext: (params: SearchPageType) => Promise<ChatMessageType[]>;
   searchPage: SearchPageType;
   offsetTop: number;
   finish: boolean;
   finishText: HTMLElement;
   loading: boolean;
   loadingIcon: HTMLElement | null;
-  constructor(opt) {
+  constructor(opt: SearchPageOption) {
     this.class = "lce-search-panel";
     this.chatRecord = [];
     this.dom = null;
@@ -86,7 +89,7 @@ export class SearchPanel {
     this.renderMessages([msg]);
     this.setFinishText(true);
   }
-  search({ next } = {}) {
+  search({ next }: {next?: boolean} = {}) {
     if (!next) {
       this.chatRecord = [];
       this.listDom.innerHTML = "";

@@ -6,14 +6,14 @@ import { LiveSearch } from "./LiveSearch";
 import { SearchType, SiteType } from "../enum";
 
 let contentConfig: SettingConfig | null = null;
-let liveControl = null;
+let liveControl: BiliBiliSearch = null;
 setTimeout(() => {
   getConfig().then(({ value }) => {
     contentConfig = value;
     init();
   });
 }, 2000);
-watchConfig((request) => {
+watchConfig((request: SettingConfig) => {
   console.log(request);
   contentConfig = request;
   init();
@@ -37,7 +37,7 @@ function searchInit() {
 }
 
 class BiliBiliSearch extends LiveSearch {
-  constructor(config) {
+  constructor(config: SettingConfig) {
     super(config);
     this.listSelector = "#chat-items";
     this.chatListDom = document.querySelector(this.listSelector);
@@ -48,7 +48,15 @@ class BiliBiliSearch extends LiveSearch {
     )?.title;
     this.init();
   }
-  search({ text, index = 0, type }) {
+  search({
+    text,
+    index = 0,
+    type,
+  }: {
+    text: string;
+    index: number;
+    type: SearchType;
+  }): Promise<{ index: number; total: number }> {
     return new Promise(async (resolve, reject) => {
       const list = this.chatListDom?.children;
       this.searchType = type;
@@ -58,7 +66,7 @@ class BiliBiliSearch extends LiveSearch {
           this.searchText = text;
           this.searchList = [];
           for (const chat of list) {
-            this.pushMsgBySearch(chat);
+            this.pushMsgBySearch(chat as HTMLElement);
           }
           // 高亮
           this.highLight().then(() => {
@@ -75,11 +83,11 @@ class BiliBiliSearch extends LiveSearch {
       }
     });
   }
-  pushMsgBySearch(msg) {
+  pushMsgBySearch(msg: HTMLElement) {
     const { danmaku, uname } = msg.dataset;
     if (
       (this.searchType === SearchType.user ? uname : danmaku)?.indexOf(
-        this.searchText,
+        this.searchText
       ) >= 0
     ) {
       this.searchList.push(msg);
@@ -87,36 +95,22 @@ class BiliBiliSearch extends LiveSearch {
     }
     return false;
   }
-  pushMsgDatabase(msg) {
-    const name = this.getNameSpanByMsg(msg)?.innerText;
-    const text = this.getChatSpanByMsg(msg)?.innerText;
-    text &&
-      this.indexDb?.push({
-        user: name,
-        text,
-        timestamp: new Date().getTime(),
-        siteType: this.siteType,
-        liveId: this.liveId,
-        liveName: this.liveName || "",
-      });
-  }
-  getNameSpanByMsg(msg) {
-    return msg?.querySelector(".user-name");
+  getNameSpanByMsg(msg: HTMLElement) {
+    return msg?.querySelector(".user-name") as HTMLElement;
   }
   // 获取内容span
-  getChatSpanByMsg(msg) {
-    return msg?.querySelector(".danmaku-item-right");
+  getChatSpanByMsg(msg: HTMLElement) {
+    return msg?.querySelector(".danmaku-item-right") as HTMLElement;
   }
   getScrollBar(): HTMLElement {
     const selector = "#chat-history-list";
-    let list =
-      document.body.querySelector(selector);
+    let list = document.body.querySelector(selector);
     if (!list && this.iframe?.contentDocument) {
       list = this.iframe.contentDocument.activeElement.querySelector(selector);
     }
     return list?.querySelector(".ps__scrollbar-y-rail");
   }
-  scrollTo(index) {
+  scrollTo(index: number): Promise<void> {
     return new Promise((resolve, reject) => {
       const textDom = this.searchList[index - 1];
       if (!textDom) {

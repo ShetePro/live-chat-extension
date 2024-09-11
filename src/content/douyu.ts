@@ -6,7 +6,7 @@ import { LiveSearch } from "./LiveSearch";
 import { SiteType } from "../enum";
 
 let contentConfig: SettingConfig | null = null;
-let liveControl = null;
+let liveControl: DouyuSearch = null;
 let asideObserve: MutationObserver | null = null;
 setTimeout(() => {
   // 斗鱼使用懒加载append弹幕列表 所以一开始并不能获取
@@ -19,7 +19,7 @@ setTimeout(() => {
         const { addedNodes } = mutation;
         let open = false;
         for (const node of addedNodes) {
-          const el = node.parentElement as HTMLElement
+          const el = node.parentElement as HTMLElement;
           open = !!el.querySelector(".Barrage-list");
         }
         if (open) {
@@ -36,9 +36,9 @@ setTimeout(() => {
 }, 1000);
 function closeLoadWatch() {
   asideObserve?.disconnect();
-  asideObserve = null
+  asideObserve = null;
 }
-watchConfig((request) => {
+watchConfig((request: SettingConfig) => {
   contentConfig = request;
   init();
 });
@@ -58,7 +58,7 @@ function searchInit() {
   liveControl = new DouyuSearch(contentConfig);
 }
 export class DouyuSearch extends LiveSearch {
-  constructor(config) {
+  constructor(config: SettingConfig) {
     super(config);
     // 设置chat list 选择器
     this.listSelector = "#js-barrage-list";
@@ -71,15 +71,15 @@ export class DouyuSearch extends LiveSearch {
     this.init();
   }
 
-  getNameSpanByMsg(msg) {
-    return msg?.querySelector(".Barrage-nickName");
+  getNameSpanByMsg(msg: HTMLElement) {
+    return msg?.querySelector(".Barrage-nickName") as HTMLElement;
   }
   // 获取内容span
-  getChatSpanByMsg(msg) {
-    return msg?.querySelector(".Barrage-content");
+  getChatSpanByMsg(msg: HTMLElement) {
+    return msg?.querySelector(".Barrage-content") as HTMLElement;
   }
   // 重写查询定位
-  scrollTo(index) {
+  scrollTo(index: number): Promise<void> {
     return new Promise((resolve, reject) => {
       const textDom = this.searchList[index - 1];
       if (!this.chatListDom) return;
@@ -88,8 +88,8 @@ export class DouyuSearch extends LiveSearch {
         reject();
         return;
       }
-      const scrollWrapper = this.chatListDom.parentElement
-      scrollWrapper.scrollTo(0, textDom.offsetTop)
+      const scrollWrapper = this.chatListDom.parentElement;
+      scrollWrapper.scrollTo(0, textDom.offsetTop);
       resolve();
     });
   }
