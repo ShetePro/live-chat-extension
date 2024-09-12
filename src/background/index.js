@@ -1,9 +1,16 @@
 import { ExtensionConfig } from "./config";
+import {isEmpty} from "../utils/util";
 
+chrome.storage.local.get([ExtensionConfig.key], (result) => {
+  console.log('result 使用chrome storage api', result)
+  if (isEmpty(result)) {
+  
+  }
+  
+});
 // background.js
 const data = {};
 data.config = ExtensionConfig;
-console.log(data, "data");
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   if (request.action === "getURL" && request.path) {
     let url = chrome.runtime.getURL(request.path);

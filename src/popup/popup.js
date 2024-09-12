@@ -1,7 +1,7 @@
 import { createDocumentEl, setConfig } from "../utils/util";
 import { ExtensionConfig } from "../background/config";
 import { i18Text, setI18nConfig } from "../locales/i8n";
-import { popupConfig } from "../../main";
+import { popupConfig } from "../main";
 import { createSwitch } from "../components/switch/swtich";
 export function createTitle() {
   return createDocumentEl("div", {

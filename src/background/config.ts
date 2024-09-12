@@ -1,4 +1,5 @@
 export const ExtensionConfig: SettingConfig = {
+  key: "lceConfigData",
   isOpen: true,
   defaultOpen: true,
   language: "en",

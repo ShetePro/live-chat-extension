@@ -14,11 +14,15 @@
   "devDependencies": {
     "@crxjs/vite-plugin": "2.0.0-beta.25",
     "@types/chrome": "^0.0.270",
+    "@vitejs/plugin-vue": "^5.1.3",
     "eslint": "^9.7.0",
     "i18next": "^23.12.1",
     "prettier": "^3.2.5",
     "typescript": "^5.5.4",
     "vite": "^5.3.4",
     "vue-tsc": "^2.1.4"
+  },
+  "dependencies": {
+    "vue": "^3.5.4"
   }
 }

@@ -8,25 +8,23 @@
     "allowJs": true, //编译时允许有js
     "strict": true, // 启用严格模式
     "resolveJsonModule": true, // 启用解析 JSON 模块
-    "isolatedModules": true, // 禁用文件间的类型检查，每个文件都将被独立地检查和编译
+    "isolatedModules": false, // 禁用文件间的类型检查，每个文件都将被独立地检查和编译
     "esModuleInterop": true, // 启用默认导入和命名空间导入之间的互操作性
     "sourceMap": false, // 是否生成 sourcemap 文件
-    "lib": ["ESNext", "DOM"], // 在编译过程中包含的库文件，这里包括了 ESNext 和 DOM
-    "skipLibCheck": true, // 禁用库文件的类型检查，以提高编译速度
+    "lib": ["ESNext", "DOM", "DOM.Iterable"], // 在编译过程中包含的库文件，这里包括了 ESNext 和 DOM
+    "skipLibCheck": false, // 禁用库文件的类型检查，以提高编译速度
     "noEmit": false, // 不生成编译输出文件
     /* Linting */
-    "strictNullChecks": true,
+    "strictNullChecks": false,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "types": [ "types/global.d.ts"]
   },
   "include": [
     "src/**/*.ts",
     "src/**/*.vue",
     "src/utils/configWatcher.ts",
-    "main.ts",
     "types/global.d.ts"
   ],
-  "exclude": ["node_modules", "dist"]
+  "exclude": ["dist"]
 }
