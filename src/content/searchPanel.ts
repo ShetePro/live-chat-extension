@@ -137,6 +137,7 @@ export class SearchPanel {
       return item;
     });
     this.listDom.append(...itemList);
+    this.setFinishText(this.finish)
   }
   setFinishText(finish: boolean) {
     this.finish = finish;
