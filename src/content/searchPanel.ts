@@ -129,11 +129,9 @@ export class SearchPanel {
       const item = createDocumentEl("div", {
         classList: ["lce-search-panel-message"],
       });
-      const text = createDocumentEl("span");
       const isSeparation =
         msg?.user?.indexOf(":") >= 0 || msg?.user?.indexOf("：") >= 0;
-      text.innerHTML = `${msg.user + (isSeparation ? "" : "：")} ${msg.text}`;
-      item.append(text);
+      item.innerHTML = `<span>${msg.user + (isSeparation ? "" : "：")}</span> <span>${msg.text}</span>`;
       return item;
     });
     this.listDom.append(...itemList);
