@@ -26,7 +26,7 @@ export function createColorSetting() {
     popupConfig.selectColor = e.target.value;
     setConfig(popupConfig);
   });
-  return renderSettingItem(i18Text("selectTextColor"), color);
+  return renderSettingItem(i18Text("selectColorText"), color);
 }
 export function createLanguagesSetting() {
   const select = createDocumentEl("select");

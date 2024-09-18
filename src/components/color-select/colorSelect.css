@@ -1,0 +1,8 @@
+.show-color-select {
+  display: flex;
+  animation-name: enter;
+  animation-duration: .15s;
+}
+.hide-color-select {
+  display: none;
+}

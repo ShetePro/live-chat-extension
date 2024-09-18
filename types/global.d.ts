@@ -9,10 +9,12 @@ type SettingConfig = {
   defaultOpen: boolean;
   language: string;
   selectColor: string;
+  fontSize: string;
+  indexedDbCacheDay: string | number;
 };
 
 type ConfigResponse = {
   value: SettingConfig
 }
 
-type MessageElement = HTMLElement | Node | Element 
+type MessageElement = HTMLElement | Node | Element

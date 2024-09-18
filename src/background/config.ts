@@ -2,6 +2,8 @@ export const ExtensionConfig: SettingConfig = {
   key: "lceConfigData",
   isOpen: true,
   defaultOpen: true,
-  language: "en",
-  selectColor: "#FAD7A0",
+  language: "cn",
+  selectColor: "#cd6155",
+  fontSize: "16px",
+  indexedDbCacheDay: '1'
 };

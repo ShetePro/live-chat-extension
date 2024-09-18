@@ -2,8 +2,6 @@
 // import { createDocumentEl, getConfig } from "./utils/util";
 // import i18next from "i18next";
 // import { setI18nConfig } from "./locales/i8n";
-import App from './popup/App.vue'
-import {createApp} from "vue";
 // import {
 //   createColorSetting, createDefaultOpenSetting,
 //   createLanguagesSetting,
@@ -37,7 +35,13 @@ import {createApp} from "vue";
 //   });
 //   main.append(list);
 // }
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import App from './App.tsx'
+import './styles/popup.css'
 
-const app = createApp(App)
-// this element doesn't exist
-app.mount('#app')
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
+    <App />
+  </StrictMode>,
+)
