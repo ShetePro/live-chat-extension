@@ -128,7 +128,6 @@ export class BasicIndexDb {
         this: IDBRequest<IDBCursorWithValue>,
         ev: Event
       ) {
-        console.log(this, ev);
         // const { result: cursor } = ev.target as {
         //   result: IDBCursorWithValue;
         // } & EventTarget;

@@ -6,11 +6,10 @@ type CreateDomOption = {
 type SettingConfig = {
   key: string;
   isOpen: boolean;
-  defaultOpen: boolean;
   language: string;
   selectColor: string;
   fontSize: string;
-  indexedDbCacheDay: string | number;
+  indexedDbCacheDay: string;
 };
 
 type ConfigResponse = {

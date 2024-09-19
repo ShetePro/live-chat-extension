@@ -28,7 +28,8 @@
     "src/**/*.ts",
     "src/**/*.tsx",
     "src/utils/configWatcher.ts",
-    "types/global.d.ts"
+    "types/global.d.ts",
+    "node_modules/.pnpm/@types+chrome@0.0.270/node_modules/@types/chrome/index.d.ts"
   ],
   "exclude": ["dist"]
 }
