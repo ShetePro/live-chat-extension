@@ -23,22 +23,24 @@ const ColorSelect = (props: ColorSelectProps) => {
     <div className={"flex flex-row justify-between items-center w-full"}>
       {defaultColor.map((color) => {
         return (
-          <>
-            <div
-              key={color}
-              className={
-                "w-6 h-6 rounded-md flex items-center justify-center cursor-pointer"
-              }
-              onClick={() => changeColor(color)}
-              style={{ backgroundColor: color, boxShadow: color === props.color ? `0px 0px 10px ${color}` : 'none' }}
-            >
-              {color === props.color ? (
-                <CheckIcon color={"#fff"}></CheckIcon>
-              ) : (
-                ""
-              )}
-            </div>
-          </>
+          <div
+            key={color}
+            className={
+              "w-6 h-6 rounded-md flex items-center justify-center cursor-pointer"
+            }
+            onClick={() => changeColor(color)}
+            style={{
+              backgroundColor: color,
+              boxShadow:
+                color === props.color ? `0px 0px 10px ${color}` : "none",
+            }}
+          >
+            {color === props.color ? (
+              <CheckIcon color={"#fff"}></CheckIcon>
+            ) : (
+              ""
+            )}
+          </div>
         );
       })}
     </div>
