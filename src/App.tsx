@@ -3,6 +3,7 @@ import { ExtensionConfig } from "@/background/config";
 import SettingForm from "@/popup/SettingForm";
 import { useEffect, useState } from "react";
 import { getChromeStorage } from "@/background/util";
+import EmptyForm from "@/popup/empty";
 
 setI18nConfig({
   lng: ExtensionConfig.language,
@@ -23,9 +24,7 @@ function App() {
       <div id={"app"}>
         <header className={"title"}>{i18Text("setting")}</header>
         {loading ? (
-          <div className={"w-full h-full text-center align-middle"}>
-            storage加载中
-          </div>
+          <EmptyForm />
         ) : (
           <SettingForm config={config}></SettingForm>
         )}
