@@ -1,6 +1,7 @@
 import { setConfig } from "../../utils/util";
 import { SearchType, SiteType } from "../../enum";
 import { ChatMessageType, SearchChatPageParams } from "./type";
+import id = chrome.runtime.id;
 
 export class BasicIndexDb {
   indexDb: IDBDatabase;
@@ -23,15 +24,7 @@ export class BasicIndexDb {
         const target = event.target as { result: IDBDatabase } & EventTarget;
         this.indexDb = target.result;
         // 开启自动清除逻辑
-        if (requestIdleCallback) {
-          requestIdleCallback(() => {
-            this.autoClearStrategy();
-          });
-        } else {
-          setTimeout(() => {
-            this.autoClearStrategy();
-          });
-        }
+        this.autoClearStrategy();
         resolve(this.indexDb);
       };
       const that = this;
@@ -63,7 +56,7 @@ export class BasicIndexDb {
     objectStore: IDBObjectStore,
     name: string,
     keyPath: string[],
-    option?: IDBIndexParameters
+    option?: IDBIndexParameters,
   ) {
     // 创建索引，如果不存在的话
     if (!objectStore.indexNames.contains(name)) {
@@ -126,7 +119,7 @@ export class BasicIndexDb {
       let skipCount = (pageIndex - 1) * pageSize;
       request.onsuccess = function (
         this: IDBRequest<IDBCursorWithValue>,
-        ev: Event
+        ev: Event,
       ) {
         // const { result: cursor } = ev.target as {
         //   result: IDBCursorWithValue;
@@ -160,6 +153,21 @@ export class BasicIndexDb {
     });
   }
   autoClearStrategy() {
+    if (requestIdleCallback) {
+      requestIdleCallback((idle) => {
+        if (idle && idle.timeRemaining() > 0) {
+          this.clearStrategy();
+        } else {
+          this.autoClearStrategy();
+        }
+      });
+    } else {
+      setTimeout(() => {
+        this.clearStrategy();
+      });
+    }
+  }
+  clearStrategy() {
     const objectStore = this.getObjectStore();
     const index = objectStore.index("createTime");
     // 获取当前时间戳
