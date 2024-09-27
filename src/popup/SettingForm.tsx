@@ -2,14 +2,12 @@ import { Form } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { ExtensionConfig } from "@/background/config";
 import OpenSetting from "@/popup/settings/openSetting";
 import SelectColorSetting from "@/popup/settings/selectColorSetting";
 import LanguageSetting from "@/popup/settings/languageSetting";
 import FontSizeSetting from "@/popup/settings/fontSizeSetting";
 import CacheSetting from "@/popup/settings/cacheSetting";
-import { getChromeStorage, setChromeStorage } from "@/background/util";
-import { useEffect, useState } from "react";
+import { setChromeStorage, watchChromeStorage } from "@/background/util";
 
 const formSchema = z.object({
   key: z.string(),
@@ -28,8 +26,9 @@ function updateSetting(data: SettingConfig) {
   console.log("set config", data);
 }
 let form;
+
 const SettingForm = ({ config }: SettingFormProps) => {
-  console.log(config, '配置信息')
+  console.log(config, "配置信息");
   const defaultValues: Partial<FormValues> = {
     ...config,
   };

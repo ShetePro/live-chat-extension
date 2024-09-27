@@ -1,3 +1,5 @@
+const watchCallback = []
+
 export function setChromeStorage (key: string, value: Record<string, any>) {
   chrome.storage.local.set({ [key]: value }).then(() => {
     console.log("Value is set", arguments);
@@ -12,4 +14,8 @@ export function getChromeStorage (key: string): Promise<SettingConfig> {
      resolve(result[key])
    });
  })
+}
+
+export function watchChromeStorage (callback) {
+  chrome.storage.local.onChanged.addListener(callback)
 }
