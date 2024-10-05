@@ -41,7 +41,7 @@ export abstract class LiveSearch {
     this.searchTextTop = 0;
     this.chatListDom = null;
     this.listSelector = "";
-    this.indexDb = new BasicIndexDb();
+    this.indexDb = new BasicIndexDb({cacheDays: config.indexedDbCacheDay});
     this.liveId = "";
     this.liveName = "";
     this.href = location.href.split("/")?.at(-1).split("?");
@@ -52,6 +52,9 @@ export abstract class LiveSearch {
     //     liveId: this.liveId,
     //   });
     // });
+  }
+  changeConfig (config: SettingConfig) {
+    this.contentConfig = config;
   }
   init() {
     // biliBili有些活动会使用iframe 嵌套直播间
@@ -94,6 +97,7 @@ export abstract class LiveSearch {
       siteType: this.siteType,
       searchCallback: (data: any) => this.search(data),
       position: (index: number) => this.scrollTo(index),
+      fontSize: this.contentConfig.fontSize
     });
     this.searchBox.renderSearch();
     this.indexDb?.init().then(() => {
@@ -103,9 +107,12 @@ export abstract class LiveSearch {
     });
   }
   destroy() {
-    this.searchBox?.remove();
-    this.observer?.disconnect();
-    this.indexDb = null;
+    this.clearHighLight().then(() => {
+      this.searchBox?.remove();
+      this.observer?.disconnect();
+      this.indexDb = null;
+    })
+
   }
   search({
     text,
@@ -255,5 +262,8 @@ export abstract class LiveSearch {
       });
       resolve();
     });
+  }
+  changeFontSize (fontSize: string) {
+    this.searchBox.setFontSize(fontSize)
   }
 }

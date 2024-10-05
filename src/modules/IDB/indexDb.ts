@@ -1,16 +1,19 @@
 import { setConfig } from "../../utils/util";
 import { SearchType, SiteType } from "../../enum";
 import { ChatMessageType, SearchChatPageParams } from "./type";
-import id = chrome.runtime.id;
-
+type BasicIndexDbProps = {
+  cacheDays: string ;
+};
 export class BasicIndexDb {
   indexDb: IDBDatabase;
   objectStoreNames: string;
   idIndex: string;
+  cacheDays: string;
   request: null | IDBOpenDBRequest;
-  constructor() {
+  constructor(props: BasicIndexDbProps) {
     this.objectStoreNames = "message";
     this.idIndex = "";
+    this.cacheDays = props.cacheDays || '1';
     this.request = null;
   }
   init() {
@@ -119,7 +122,6 @@ export class BasicIndexDb {
       let skipCount = (pageIndex - 1) * pageSize;
       request.onsuccess = function (
         this: IDBRequest<IDBCursorWithValue>,
-        ev: Event,
       ) {
         // const { result: cursor } = ev.target as {
         //   result: IDBCursorWithValue;
@@ -173,7 +175,7 @@ export class BasicIndexDb {
     // 获取当前时间戳
     const currentTime = Date.now();
     // 计算24小时之前的时间戳
-    const timeThreshold = currentTime - 24 * 60 * 60 * 1000;
+    const timeThreshold = currentTime - Number(this.cacheDays) * 24 * 60 * 60 * 1000;
     // 定义删除范围
     const keyRange = IDBKeyRange.upperBound([timeThreshold]);
     const cursorRequest = index.openCursor(keyRange);
@@ -191,7 +193,6 @@ export class BasicIndexDb {
     };
   }
   clearBySearch({ liveId, siteType }: { liveId: string; siteType: SiteType }) {
-    const db = this.indexDb;
     let keyRange = IDBKeyRange.only([siteType, liveId]);
     // 开启一个读写事务
     const objectStore = this.getObjectStore();

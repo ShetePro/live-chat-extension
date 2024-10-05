@@ -1,6 +1,7 @@
 const callbacks: any[] = [];
 
 export function watchConfig(callback: (request: SettingConfig) => void) {
+
   if (typeof callback === "function") {
     callbacks.push(callback);
   }

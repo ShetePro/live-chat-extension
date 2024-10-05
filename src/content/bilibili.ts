@@ -1,22 +1,34 @@
-import { getConfig } from "../utils/util";
 import "./index.css";
-import { watchConfig } from "../utils/configWatcher";
 import { setI18nConfig } from "../locales/i8n";
 import { LiveSearch } from "./LiveSearch";
 import { SearchType, SiteType } from "../enum";
+import { getChromeStorage, watchChromeStorage } from "@/background/util";
+import { ExtensionConfig } from "@/background/config";
 
 let contentConfig: SettingConfig | null = null;
 let liveControl: BiliBiliSearch = null;
 setTimeout(() => {
-  getConfig().then(({ value }) => {
-    contentConfig = value;
+  getChromeStorage(ExtensionConfig.key).then((result) => {
+    contentConfig = result;
     init();
   });
 }, 2000);
-watchConfig((request: SettingConfig) => {
-  console.log(request);
-  contentConfig = request;
-  init();
+watchChromeStorage((changes) => {
+  console.log(changes, "bilibili changes哔哩哔哩变更");
+  const { newValue, oldValue } = changes[ExtensionConfig.key];
+  contentConfig = newValue;
+  liveControl?.changeConfig(contentConfig);
+  if (newValue.selectColor !== oldValue.selectColor) {
+    liveControl.clearHighLight().then(() => {
+      liveControl.highLight();
+    });
+  }
+  if (newValue.fontSize !== oldValue.fontSize) {
+    liveControl.changeFontSize(contentConfig.fontSize);
+  }
+  if (newValue.language !== oldValue.language) {
+    init();
+  }
 });
 
 function init() {
@@ -87,7 +99,7 @@ class BiliBiliSearch extends LiveSearch {
     const { danmaku, uname } = msg.dataset;
     if (
       (this.searchType === SearchType.user ? uname : danmaku)?.indexOf(
-        this.searchText
+        this.searchText,
       ) >= 0
     ) {
       this.searchList.push(msg);

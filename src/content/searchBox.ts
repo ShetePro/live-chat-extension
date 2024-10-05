@@ -13,6 +13,7 @@ type SearchBoxOption = {
   position: (index: number) => Promise<any>;
   liveId: string;
   siteType: SiteType;
+  fontSize?: string;
 };
 export class SearchBox {
   option: SearchBoxOption;
@@ -28,10 +29,12 @@ export class SearchBox {
   cnFlag: boolean;
   searchBox: HTMLElement;
   searchPanel: SearchPanel | null;
+  fontSize: string;
   constructor(opt: SearchBoxOption) {
     this.option = opt;
     this.isSearch = false;
     this.indexDb = opt.indexDb;
+    this.fontSize = opt.fontSize;
     this.searchText = "";
     this.index = 0;
     this.total = 0;
@@ -40,6 +43,7 @@ export class SearchBox {
     this.x = opt.x || 0;
     this.y = opt.y || 0;
     this.cnFlag = false;
+    console.log(this.option);
     this.searchBox = document.createElement("div");
     this.searchPanel = new SearchPanel({
       onNext: (params: SearchPageType) => {
@@ -60,12 +64,15 @@ export class SearchBox {
   setStyle() {
     this.searchBox?.setAttribute(
       "style",
-      `transform: translate(${this.x}px, ${this.y}px`,
+      `--fontSize: ${this.fontSize}; transform: translate(${this.x}px, ${this.y}px`,
     );
+  }
+  setFontSize(fontSize: string) {
+    this.fontSize = fontSize;
+    this.setStyle();
   }
   renderSearch() {
     console.log("显示直播弹幕查询");
-    const box = document.createElement("div");
     this.searchBox.classList.add("lce-search-box");
     const panel = this.searchPanel?.create();
     panel && this.searchBox.append(panel);
@@ -178,9 +185,9 @@ export class SearchBox {
     const next = createDocumentEl("div", {
       classList: ["lce-btn", "next-icon"],
     });
-    const close = createDocumentEl("div", {
-      classList: ["lce-btn", "close-icon"],
-    });
+    // const close = createDocumentEl("div", {
+    //   classList: ["lce-btn", "close-icon"],
+    // });
     const group = createDocumentEl("div", {
       classList: ["lce-btn-group"],
       append: [previous, next],
@@ -190,7 +197,7 @@ export class SearchBox {
     this.searchBox?.append(group);
   }
   searchTextEvent(e: Event) {
-    const {value} = e.target as {value: string } & EventTarget
+    const { value } = e.target as { value: string } & EventTarget;
     this.searchText = value;
     this.isSearch = this.searchText?.length > 0;
     if (!this.cnFlag) {
@@ -200,7 +207,10 @@ export class SearchBox {
   updateSearchPanelMessage(msg: ChatMessageType) {
     this.searchPanel?.updateRecord(msg);
   }
-  searchByIndexedDB({ pageIndex = 1, pageSize = 20 }: SearchPageType): Promise<ChatMessageType[]> {
+  searchByIndexedDB({
+    pageIndex = 1,
+    pageSize = 20,
+  }: SearchPageType): Promise<ChatMessageType[]> {
     return new Promise((resolve, reject) => {
       // 数据库查询逻辑
       this.indexDb
