@@ -43,5 +43,5 @@
       "run_at": "document_end"
     }
   ],
-  "permissions": ["storage", "declarativeContent"]
+  "permissions": ["storage", "declarativeContent", "tabs"]
 }
