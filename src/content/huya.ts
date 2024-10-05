@@ -1,28 +1,29 @@
 import "./index.css";
-import { getConfig } from "../utils/util";
-import { watchConfig } from "../utils/configWatcher";
 import { setI18nConfig } from "../locales/i8n";
 import { LiveSearch } from "./LiveSearch";
-import {SiteType} from "../enum";
+import { SiteType } from "../enum";
+import { getChromeStorage } from "@/background/util";
+import { ExtensionConfig } from "@/background/config";
+import { watchConfig } from "@/utils/configWatcher";
 
 let contentConfig: SettingConfig | null = null;
 let liveControl: any = null;
+
 setTimeout(() => {
-  getConfig().then(({ value }) => {
-    contentConfig = value;
+  getChromeStorage(ExtensionConfig.key).then((result) => {
+    contentConfig = result;
     init();
   });
 }, 2000);
-watchConfig((request: SettingConfig) => {
-  contentConfig = request;
-  init();
+watchConfig(() => liveControl, init).then((res) => {
+  contentConfig = res;
 });
-
-function init() {
+function init(config: SettingConfig = contentConfig) {
+  if (!config) return;
   setI18nConfig({
-    lng: contentConfig?.language,
+    lng: config.language,
   });
-  if (contentConfig?.isOpen) {
+  if (config.isOpen) {
     searchInit();
   } else {
     liveControl?.destroy();
@@ -40,7 +41,9 @@ export class HuyaSearch extends LiveSearch {
     this.listSelector = "#chat-room__list";
     this.siteType = SiteType.huya;
     this.liveId = this.href[0];
-    this.liveName = (document.querySelector(".host-name") as HTMLElement)?.title;
+    this.liveName = (
+      document.querySelector(".host-name") as HTMLElement
+    )?.title;
     this.chatListDom = document.querySelector(this.listSelector);
     this.init();
   }
@@ -56,7 +59,7 @@ export class HuyaSearch extends LiveSearch {
   scrollTo(index: number): Promise<void> {
     return new Promise((resolve, reject) => {
       const textDom = this.searchList[index - 1];
-      if (!this.chatListDom) return
+      if (!this.chatListDom) return;
       if (!textDom) {
         console.log("index 错误", index);
         reject();
@@ -64,7 +67,7 @@ export class HuyaSearch extends LiveSearch {
       }
       this.searchTextTop = textDom.offsetTop;
       const offset = Math.max(0, textDom.offsetTop - 300);
-      const chatListDom = this.chatListDom as HTMLElement
+      const chatListDom = this.chatListDom as HTMLElement;
       const top =
         chatListDom?.style.top === "auto"
           ? chatListDom.offsetHeight
@@ -77,7 +80,7 @@ export class HuyaSearch extends LiveSearch {
     });
   }
   scrollView(textDom: HTMLElement, { offset, direction = -1 }: any) {
-    const chatListDom = this.chatListDom as HTMLElement
+    const chatListDom = this.chatListDom as HTMLElement;
     const top =
       chatListDom?.style.top === "auto"
         ? 0

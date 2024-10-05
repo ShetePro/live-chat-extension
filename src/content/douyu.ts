@@ -1,9 +1,10 @@
 import "./index.css";
-import { getConfig } from "../utils/util";
 import { watchConfig } from "../utils/configWatcher";
 import { setI18nConfig } from "../locales/i8n";
 import { LiveSearch } from "./LiveSearch";
 import { SiteType } from "../enum";
+import { getChromeStorage } from "@/background/util";
+import { ExtensionConfig } from "@/background/config";
 
 let contentConfig: SettingConfig | null = null;
 let liveControl: DouyuSearch = null;
@@ -23,8 +24,8 @@ setTimeout(() => {
           open = !!el.querySelector(".Barrage-list");
         }
         if (open) {
-          getConfig().then(({ value }) => {
-            contentConfig = value;
+          getChromeStorage(ExtensionConfig.key).then((result) => {
+            contentConfig = result;
             init();
             closeLoadWatch();
           });
@@ -38,16 +39,16 @@ function closeLoadWatch() {
   asideObserve?.disconnect();
   asideObserve = null;
 }
-watchConfig((request: SettingConfig) => {
-  contentConfig = request;
-  init();
+watchConfig(() => liveControl, init).then((res) => {
+  contentConfig = res;
 });
 
-function init() {
+function init(config: SettingConfig = contentConfig) {
+  if (!config) return;
   setI18nConfig({
-    lng: contentConfig?.language,
+    lng: config.language,
   });
-  if (contentConfig?.isOpen) {
+  if (config.isOpen) {
     searchInit();
   } else {
     liveControl?.destroy();

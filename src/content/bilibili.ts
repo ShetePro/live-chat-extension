@@ -2,8 +2,9 @@ import "./index.css";
 import { setI18nConfig } from "../locales/i8n";
 import { LiveSearch } from "./LiveSearch";
 import { SearchType, SiteType } from "../enum";
-import { getChromeStorage, watchChromeStorage } from "@/background/util";
+import { getChromeStorage } from "@/background/util";
 import { ExtensionConfig } from "@/background/config";
+import { watchConfig } from "@/utils/configWatcher";
 
 let contentConfig: SettingConfig | null = null;
 let liveControl: BiliBiliSearch = null;
@@ -13,30 +14,15 @@ setTimeout(() => {
     init();
   });
 }, 2000);
-watchChromeStorage((changes) => {
-  console.log(changes, "bilibili changes哔哩哔哩变更");
-  const { newValue, oldValue } = changes[ExtensionConfig.key];
-  contentConfig = newValue;
-  liveControl?.changeConfig(contentConfig);
-  if (newValue.selectColor !== oldValue.selectColor) {
-    liveControl.clearHighLight().then(() => {
-      liveControl.highLight();
-    });
-  }
-  if (newValue.fontSize !== oldValue.fontSize) {
-    liveControl.changeFontSize(contentConfig.fontSize);
-  }
-  if (newValue.language !== oldValue.language) {
-    init();
-  }
+watchConfig(() => liveControl, init).then((res) => {
+  contentConfig = res;
 });
-
-function init() {
-  if (!contentConfig) return;
+function init(config: SettingConfig = contentConfig) {
+  if (!config) return;
   setI18nConfig({
-    lng: contentConfig.language,
+    lng: config.language,
   });
-  if (contentConfig.isOpen) {
+  if (config.isOpen) {
     searchInit();
   } else {
     liveControl?.destroy();
