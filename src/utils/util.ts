@@ -1,6 +1,7 @@
+import QuerySelectorConfig from "../../siteQuerySelectorConfig.json";
 export function createDocumentEl<K extends keyof HTMLElementTagNameMap>(
   tag: K,
-  option?: CreateDomOption
+  option?: CreateDomOption,
 ): HTMLElementTagNameMap[K] {
   const { classList = [], append = [] } = option || {};
   const dom = document.createElement(tag);
@@ -17,7 +18,7 @@ export function getConfig(): Promise<ConfigResponse> {
         (response) => {
           console.log("config data:", response);
           resolve(response as ConfigResponse);
-        }
+        },
       );
     } catch (e) {
       reject(e);
@@ -27,7 +28,7 @@ export function getConfig(): Promise<ConfigResponse> {
 // 修改配置信息
 export function setConfig(
   value: Record<string, any>,
-  props?: Record<string, any>
+  props?: Record<string, any>,
 ) {
   return new Promise((resolve, reject) => {
     try {
@@ -45,7 +46,7 @@ export function setConfig(
         },
         (response) => {
           resolve(response);
-        }
+        },
       );
     } catch (e) {
       reject(e);
@@ -58,17 +59,18 @@ export function highLightText(search: string, text: string, color: string) {
   const regex = new RegExp(search, "g");
   return text.replace(
     regex,
-    `<span style="background: ${color}">${search}</span>`
+    `<span style="background: ${color}">${search}</span>`,
   );
 }
 
 // watch chat list message push
 export function observerListPush(
   dom: Element,
-  callback: (mutation: MutationRecord) => void
+  callback: (mutation: MutationRecord) => void,
 ) {
+  console.log(dom, 'observe')
   if (dom?.nodeType === 1) {
-    const observer = new MutationObserver((mutationsList, observer) => {
+    const observer = new MutationObserver((mutationsList) => {
       for (let mutation of mutationsList) {
         if (mutation.type === "childList") {
           callback(mutation);
@@ -97,11 +99,12 @@ export function getImageSrc(src: string): string | null {
 export function debounce<T>(
   callback: (arg: T) => void,
   wait: number,
-  that?: any
+  that?: any,
 ): (arg: T) => void {
   let timeout: number | undefined;
   return function (this: any, arg) {
     timeout && clearTimeout(timeout);
+    // @ts-ignore
     timeout = setTimeout(() => {
       callback.call(that || this, arg);
     }, wait);
@@ -134,4 +137,8 @@ export function isObject(val: any) {
 }
 export function isString(val: any) {
   return is(val, "String");
+}
+
+export function getQuerySelectorConfig() {
+  return QuerySelectorConfig;
 }

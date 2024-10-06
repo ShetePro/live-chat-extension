@@ -6,7 +6,7 @@
   "web_accessible_resources": [
     {
       "resources": ["/src/*", "assets/*"],
-      "matches": ["https://live.bilibili.com/*", "https://www.huya.com/*", "https://www.douyu.com/*"]
+      "matches": ["https://live.bilibili.com/*", "https://www.huya.com/*", "https://www.douyu.com/*", "https://www.youtube.com/*"]
     }
   ],
   "action": {
@@ -34,6 +34,12 @@
       "matches": ["https://www.douyu.com/*"],
       "type": "module",
       "js": ["src/content/douyu.ts"],
+      "run_at": "document_end"
+    },
+    {
+      "matches": ["https://www.youtube.com/*"],
+      "type": "module",
+      "js": ["src/content/youtube.ts"],
       "run_at": "document_end"
     },
     {
