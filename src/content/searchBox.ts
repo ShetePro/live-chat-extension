@@ -1,9 +1,11 @@
-import { createDocumentEl, debounce } from "../utils/util";
+import {createDocumentEl, debounce, injectShadowStyle} from "@/utils/util";
 import { SearchPageType, SearchPanel } from "./searchPanel";
-import { BasicIndexDb } from "../modules/IDB/indexDb";
-import { SearchType, SiteType } from "../enum";
-import { i18Text } from "../locales/i8n";
-import { ChatMessageType } from "../modules/IDB/type";
+import { BasicIndexDb } from "@/modules/IDB/indexDb";
+import { SearchType, SiteType } from "@/enum";
+import { i18Text } from "@/locales/i8n";
+import { ChatMessageType } from "@/modules/IDB/type";
+// @ts-ignore
+import Styles from "./index.css?inline";
 
 type SearchBoxOption = {
   indexDb: BasicIndexDb;
@@ -43,7 +45,6 @@ export class SearchBox {
     this.x = opt.x || 0;
     this.y = opt.y || 0;
     this.cnFlag = false;
-    console.log(this.option);
     this.searchBox = document.createElement("div");
     this.searchPanel = new SearchPanel({
       onNext: (params: SearchPageType) => {
@@ -74,9 +75,14 @@ export class SearchBox {
   renderSearch() {
     console.log("显示直播弹幕查询");
     this.searchBox.classList.add("lce-search-box");
+    const main = document.createElement("div");
     const panel = this.searchPanel?.create();
     panel && this.searchBox.append(panel);
-    document.body.append(this.searchBox);
+    // 使用shadow dom
+    const shadowRoot = main.attachShadow({ mode: "open" });
+    shadowRoot.append(this.searchBox);
+    injectShadowStyle(shadowRoot, Styles);
+    document.body.append(main);
     this.setStyle();
     this.renderTypeSelect();
     this.renderInput();
@@ -170,7 +176,6 @@ export class SearchBox {
       });
       this.searchBox?.append(span);
     }
-    console.log(this.isSearch, "is Search");
     if (this.isSearch) {
       span.style.display = "block";
       span.innerText = `${this.index} / ${this.total}`;

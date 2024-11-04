@@ -92,6 +92,7 @@
     margin: auto 10px;
     padding: 0 5px;
     color: #2F3238;
+    background-color: transparent;
     font-size: calc(var(--fontSize) * 0.875);
   }
   .lce-btn-group {

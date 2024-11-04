@@ -142,3 +142,10 @@ export function isString(val: any) {
 export function getQuerySelectorConfig() {
   return QuerySelectorConfig;
 }
+export function injectShadowStyle (shadowRoot: ShadowRoot, styles: string) {
+  if (shadowRoot instanceof ShadowRoot) {
+    const sheet = new CSSStyleSheet();
+    sheet.replaceSync(styles);
+    shadowRoot.adoptedStyleSheets = [sheet];
+  }
+}

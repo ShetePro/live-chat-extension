@@ -3,10 +3,10 @@ import {
   createDocumentEl,
   highLightText,
   observerListPush,
-} from "../utils/util";
-import { BasicIndexDb } from "../modules/IDB/indexDb";
-import { SearchType, SiteType } from "../enum";
-import { ChatMessageType } from "../modules/IDB/type";
+} from "@/utils/util";
+import { BasicIndexDb } from "@/modules/IDB/indexDb";
+import { SearchType, SiteType } from "@/enum";
+import { ChatMessageType } from "@/modules/IDB/type";
 
 export abstract class LiveSearch {
   liveData: Record<string, any>[];
@@ -30,7 +30,7 @@ export abstract class LiveSearch {
   // 获取内容span
   abstract getChatSpanByMsg(msg: MessageElement): HTMLElement;
   abstract scrollTo(index: number): Promise<any>;
-  constructor(config: SettingConfig) {
+  protected constructor(config: SettingConfig) {
     this.contentConfig = config;
     this.liveData = [];
     this.observer = null;
@@ -45,19 +45,12 @@ export abstract class LiveSearch {
     this.liveId = "";
     this.liveName = "";
     this.href = location.href.split("/")?.at(-1).split("?");
-    // window.addEventListener("beforeunload", (event) => {
-    //   // 清空该直播间 IndexedDB 记录的聊天数据
-    //   this.indexDb?.clearBySearch({
-    //     siteType: this.siteType,
-    //     liveId: this.liveId,
-    //   });
-    // });
   }
   changeConfig (config: SettingConfig) {
     this.contentConfig = config;
   }
   init() {
-    // biliBili有些活动会使用iframe 嵌套直播间
+    // 处理使用iframe 嵌套直播间
     if (!this.chatListDom) {
       const iframes: NodeListOf<HTMLIFrameElement> =
         document.body.querySelectorAll("iframe");
@@ -136,7 +129,6 @@ export abstract class LiveSearch {
           }
           // 高亮
           this.highLight().then(() => {
-            console.log(this.searchList.length);
             resolve({ index, total: this.searchList.length });
           });
         } else {
