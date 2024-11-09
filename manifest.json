@@ -37,7 +37,7 @@
       "run_at": "document_end"
     },
     {
-      "matches": ["https://www.youtube.com/*"],
+      "matches": ["https://www.youtube.com/watch*"],
       "type": "module",
       "js": ["src/content/youtube.ts"],
       "run_at": "document_end"

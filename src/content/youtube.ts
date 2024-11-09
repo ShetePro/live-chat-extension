@@ -1,19 +1,18 @@
 import "./index.css";
-import { setI18nConfig } from "../locales/i8n";
+import { setI18nConfig } from "@/locales/i8n";
 import { LiveSearch } from "./LiveSearch";
-import { SearchType, SiteType } from "../enum";
+import { SearchType, SiteType } from "@/enum";
 import { getChromeStorage } from "@/background/util";
 import { ExtensionConfig } from "@/background/config";
 import { watchConfig } from "@/utils/configWatcher";
-import { getQuerySelectorConfig } from "@/utils/util";
+import { getQuerySelectorConfig, querySelector } from "@/utils/util";
 
-console.log('这是youtube 直播插件开启')
 let contentConfig: SettingConfig | null = null;
 let liveControl: YoutubeSearch = null;
 const querySelectorConfig = getQuerySelectorConfig()["youtube"];
 setTimeout(() => {
   getChromeStorage(ExtensionConfig.key).then((result) => {
-    console.log('config', result);
+    console.log("config", result);
     contentConfig = result;
     init();
   });
@@ -34,7 +33,6 @@ function init(config: SettingConfig = contentConfig) {
 }
 function searchInit() {
   liveControl?.destroy();
-  console.log(location.href);
   liveControl = new YoutubeSearch(contentConfig);
 }
 
@@ -42,8 +40,7 @@ class YoutubeSearch extends LiveSearch {
   constructor(config: SettingConfig) {
     super(config);
     this.listSelector = querySelectorConfig.listSelector;
-    this.chatListDom = document.querySelector(this.listSelector);
-    console.log(document.querySelectorAll('.yt-live-chat-item-list-renderer'))
+    this.chatListDom = querySelector(this.listSelector);
     this.siteType = SiteType.youtube;
     this.liveId = this.href[0];
     this.liveName = (
@@ -87,9 +84,10 @@ class YoutubeSearch extends LiveSearch {
     });
   }
   pushMsgBySearch(msg: HTMLElement) {
-    const { danmaku, uname } = msg.dataset;
+    const user = this.getNameSpanByMsg(msg)?.innerText;
+    const text = this.getChatSpanByMsg(msg)?.innerText;
     if (
-      (this.searchType === SearchType.user ? uname : danmaku)?.indexOf(
+      (this.searchType === SearchType.user ? user : text)?.indexOf(
         this.searchText,
       ) >= 0
     ) {
@@ -99,11 +97,15 @@ class YoutubeSearch extends LiveSearch {
     return false;
   }
   getNameSpanByMsg(msg: HTMLElement) {
-    return msg?.querySelector(querySelectorConfig.userNameSelector) as HTMLElement;
+    return msg?.querySelector(
+      querySelectorConfig.userNameSelector,
+    ) as HTMLElement;
   }
   // 获取内容span
   getChatSpanByMsg(msg: HTMLElement) {
-    return msg?.querySelector(querySelectorConfig.messageSelector) as HTMLElement;
+    return msg?.querySelector(
+      querySelectorConfig.messageSelector,
+    ) as HTMLElement;
   }
   // 重写查询定位
   scrollTo(index: number): Promise<void> {
@@ -116,41 +118,13 @@ class YoutubeSearch extends LiveSearch {
         return;
       }
       this.searchTextTop = textDom.offsetTop;
-      const offset = Math.max(0, textDom.offsetTop - 300);
-      const chatListDom = this.chatListDom as HTMLElement;
-      const top =
-        chatListDom?.style.top === "auto"
-          ? chatListDom.offsetHeight
-          : Math.abs(parseInt(chatListDom?.style.top));
-      this.scrollView(textDom, {
-        offset,
-        direction: offset <= Math.abs(top) ? -1 : 1,
-      });
+      const scroll = this.chatListDom.parentElement.parentElement as HTMLElement;
+      const top = textDom.offsetTop - 100;
+      scroll.scrollTo({
+        top,
+        behavior: "auto",
+      })
       resolve();
     });
-  }
-  scrollView(textDom: HTMLElement, { offset, direction = -1 }: any) {
-    const chatListDom = this.chatListDom as HTMLElement;
-    const top =
-      chatListDom?.style.top === "auto"
-        ? 0
-        : Math.abs(parseInt(chatListDom?.style.top));
-    if (direction === -1 && chatListDom?.style.top === "0px") {
-      return;
-    }
-    if (direction === 1 && chatListDom?.style.top === "auto") {
-      return;
-    }
-    const event = new WheelEvent("wheel", {
-      bubbles: true,
-      cancelable: true,
-      deltaX: 0,
-      deltaY: 120 * direction, // 向上滚动
-      deltaMode: WheelEvent.DOM_DELTA_PIXEL,
-    });
-    this.chatListDom?.dispatchEvent(event);
-    if (top === 0 || (direction === -1 ? offset <= top : offset >= top)) {
-      this.scrollView(textDom, { offset, direction });
-    }
   }
 }

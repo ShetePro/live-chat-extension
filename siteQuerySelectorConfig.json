@@ -1,7 +1,7 @@
 {
   "bilibili": {},
   "youtube": {
-    "listSelector": "#items",
+    "listSelector": "#items,.yt-live-chat-item-list-renderer",
     "userNameSelector": "#author-name",
     "messageSelector": "#message"
   }

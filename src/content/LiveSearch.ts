@@ -3,6 +3,7 @@ import {
   createDocumentEl,
   highLightText,
   observerListPush,
+  querySelector,
 } from "@/utils/util";
 import { BasicIndexDb } from "@/modules/IDB/indexDb";
 import { SearchType, SiteType } from "@/enum";
@@ -41,12 +42,12 @@ export abstract class LiveSearch {
     this.searchTextTop = 0;
     this.chatListDom = null;
     this.listSelector = "";
-    this.indexDb = new BasicIndexDb({cacheDays: config.indexedDbCacheDay});
+    this.indexDb = new BasicIndexDb({ cacheDays: config.indexedDbCacheDay });
     this.liveId = "";
     this.liveName = "";
     this.href = location.href.split("/")?.at(-1).split("?");
   }
-  changeConfig (config: SettingConfig) {
+  changeConfig(config: SettingConfig) {
     this.contentConfig = config;
   }
   init() {
@@ -55,7 +56,7 @@ export abstract class LiveSearch {
       const iframes: NodeListOf<HTMLIFrameElement> =
         document.body.querySelectorAll("iframe");
       iframes.forEach((iframe) => {
-        let list = iframe.contentDocument?.querySelector(this.listSelector);
+        let list = querySelector(this.listSelector, iframe.contentDocument);
         if (list) {
           this.chatListDom = list as HTMLElement;
           this.iframe = iframe;
@@ -71,7 +72,7 @@ export abstract class LiveSearch {
   awaitIframeLoad(iframe: HTMLIFrameElement) {
     if (iframe.contentDocument) {
       iframe.addEventListener("load", () => {
-        const list = iframe.contentDocument?.querySelector(this.listSelector);
+        const list = querySelector(this.listSelector, iframe.contentDocument);
         if (list) {
           this.chatListDom = list;
           this.iframe = iframe;
@@ -81,16 +82,15 @@ export abstract class LiveSearch {
     }
   }
   renderSearch() {
-    const { left, top } = this.chatListDom?.getBoundingClientRect();
     this.searchBox = new SearchBox({
       indexDb: this.indexDb,
-      x: left + 10,
-      y: top,
+      x: window.innerWidth - 500,
+      y: window.innerHeight * 0.4,
       liveId: this.liveId,
       siteType: this.siteType,
       searchCallback: (data: any) => this.search(data),
       position: (index: number) => this.scrollTo(index),
-      fontSize: this.contentConfig.fontSize
+      fontSize: this.contentConfig.fontSize,
     });
     this.searchBox.renderSearch();
     this.indexDb?.init().then(() => {
@@ -104,8 +104,7 @@ export abstract class LiveSearch {
       this.searchBox?.remove();
       this.observer?.disconnect();
       this.indexDb = null;
-    })
-
+    });
   }
   search({
     text,
@@ -143,11 +142,12 @@ export abstract class LiveSearch {
     });
   }
   pushMsgBySearch(msg: MessageElement) {
+    console.log(msg)
     const name = this.getNameSpanByMsg(msg)?.innerText;
     const text = this.getChatSpanByMsg(msg)?.innerText;
     if (
       (this.searchType === SearchType.user ? name : text)?.indexOf(
-        this.searchText
+        this.searchText,
       ) >= 0
     ) {
       this.searchList.push(msg);
@@ -255,7 +255,7 @@ export abstract class LiveSearch {
       resolve();
     });
   }
-  changeFontSize (fontSize: string) {
-    this.searchBox.setFontSize(fontSize)
+  changeFontSize(fontSize: string) {
+    this.searchBox.setFontSize(fontSize);
   }
 }

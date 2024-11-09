@@ -101,10 +101,9 @@ export function debounce<T>(
   wait: number,
   that?: any,
 ): (arg: T) => void {
-  let timeout: number | undefined;
+  let timeout: ReturnType<typeof setTimeout> | undefined;
   return function (this: any, arg) {
     timeout && clearTimeout(timeout);
-    // @ts-ignore
     timeout = setTimeout(() => {
       callback.call(that || this, arg);
     }, wait);
@@ -147,5 +146,34 @@ export function injectShadowStyle (shadowRoot: ShadowRoot, styles: string) {
     const sheet = new CSSStyleSheet();
     sheet.replaceSync(styles);
     shadowRoot.adoptedStyleSheets = [sheet];
+  }
+}
+export function querySelector(query: string, parent?: Document): Element | null;
+export function querySelector(query: string[], parent?: Document): Element | null;
+export function querySelector(query: string[], parent?: Document): Element | null;
+export function querySelector (query:any, parent?: Document): Element | null {
+  parent = parent || document;
+  if (isString(query)){
+    query = query.split(',')
+  }
+  const firstQuery: string = query[0]
+  const all = parent.querySelectorAll(firstQuery)
+  return selectorNodeByQuery(all, query)
+}
+function selectorNodeByQuery (nodeList: NodeListOf<Element>, query: string[]) {
+  for (const dom of nodeList) {
+    const flag = query.some(q => {
+      const selector = q.slice(1)
+      if (q[0] === "#") {
+        return dom.id !== selector
+      }
+      if (q[0] === ".") {
+        return !dom.classList.contains(selector)
+      }
+      return dom.tagName !== selector
+    })
+    if (!flag) {
+      return dom
+    }
   }
 }

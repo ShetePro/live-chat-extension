@@ -147,6 +147,13 @@ export class SearchBox {
       classList: ["lce-input"],
       append: [],
     });
+    // 取消按键冒泡 防止输入时触发快捷键
+    box.addEventListener("keydown", (e) => {
+      e.stopPropagation()
+    })
+    box.addEventListener("keyup", (e) => {
+      e.stopPropagation()
+    })
     box.addEventListener("compositionstart", () => {
       console.log("start");
       this.cnFlag = true;
@@ -154,11 +161,8 @@ export class SearchBox {
     box.addEventListener(
       "input",
       debounce(
-        (e: Event) => {
-          this.searchTextEvent(e);
-        },
-        200,
-        this,
+          this.searchTextEvent,
+        0, this
       ),
     );
     box.addEventListener("compositionend", () => {
@@ -201,8 +205,10 @@ export class SearchBox {
     previous.addEventListener("click", () => this.previous());
     this.searchBox?.append(group);
   }
-  searchTextEvent(e: Event) {
-    const { value } = e.target as { value: string } & EventTarget;
+  searchTextEvent() {
+    const target = this.searchBox.querySelector('.lce-input')
+    if (!target) return
+    const { value } = target as HTMLInputElement
     this.searchText = value;
     this.isSearch = this.searchText?.length > 0;
     if (!this.cnFlag) {
@@ -249,7 +255,6 @@ export class SearchBox {
         this.index = index;
         this.total = total;
         this.renderTotal();
-        console.log("收到", index, total);
       });
   }
   next() {
