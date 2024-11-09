@@ -6,7 +6,7 @@
   "web_accessible_resources": [
     {
       "resources": ["/src/*", "assets/*"],
-      "matches": ["https://live.bilibili.com/*"]
+      "matches": ["https://live.bilibili.com/*", "https://www.huya.com/*", "https://www.douyu.com/*", "https://www.youtube.com/*"]
     }
   ],
   "action": {
@@ -19,16 +19,35 @@
   },
   "content_scripts": [
     {
-      "matches": [
-        "https://live.bilibili.com/*",
-        "https://www.twitch.tv/*",
-        "https://www.douyu.com/*",
-        "https://www.huya.com/"
-      ],
+      "matches": ["https://live.bilibili.com/*"],
       "type": "module",
-      "js": ["/src/content/index.js"],
+      "js": ["src/content/bilibili.ts"],
+      "run_at": "document_end"
+    },
+    {
+      "matches": ["https://www.huya.com/*"],
+      "type": "module",
+      "js": ["src/content/huya.ts"],
+      "run_at": "document_end"
+    },
+    {
+      "matches": ["https://www.douyu.com/*"],
+      "type": "module",
+      "js": ["src/content/douyu.ts"],
+      "run_at": "document_end"
+    },
+    {
+      "matches": ["https://www.youtube.com/watch*"],
+      "type": "module",
+      "js": ["src/content/youtube.ts"],
+      "run_at": "document_end"
+    },
+    {
+      "matches": ["https://www.twitch.tv/*"],
+      "type": "module",
+      "js": ["src/content/huya.ts"],
       "run_at": "document_end"
     }
   ],
-  "permissions": ["storage", "declarativeContent"]
+  "permissions": ["storage", "declarativeContent", "tabs"]
 }

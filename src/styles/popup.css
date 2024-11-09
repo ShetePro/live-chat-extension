@@ -1,15 +1,22 @@
-@import "./src/components/switch/switch.css";
+@import "tailwind.css";
+@import "theme.css";
+#app {
+  width: 300px;
+  margin: 0 auto;
+}
+
 html, body {
+  width: 100%;
+  height: 100%;
   margin: 0;
   padding: 0;
-  width: 300px;
 }
 .title {
   width: 100%;
   height: 40px;
-  background-color: #00cc99;
+  background-color: hsl(var(--primary));
   color: #fff;
-  font-size: 18px;
+  font-size: 1.2rem;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -29,4 +36,13 @@ html, body {
   align-items: center;
   justify-content: space-between;
   width: 100%;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
 }
