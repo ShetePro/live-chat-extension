@@ -2,7 +2,7 @@ import { createDocumentEl } from "../utils/util";
 import { i18Text } from "../locales/i8n";
 import { ChatMessageType } from "../modules/IDB/type";
 export type SearchPageOption = {
-  onNext: (params: SearchPageType) => Promise<ChatMessageType[]>
+  onNext: (params: SearchPageType) => Promise<ChatMessageType[]>;
 };
 export type SearchPageType = {
   pageIndex: number;
@@ -89,7 +89,7 @@ export class SearchPanel {
     this.renderMessages([msg]);
     this.setFinishText(true);
   }
-  search({ next }: {next?: boolean} = {}) {
+  search({ next }: { next?: boolean } = {}) {
     if (!next) {
       this.chatRecord = [];
       this.listDom.innerHTML = "";
@@ -131,11 +131,19 @@ export class SearchPanel {
       });
       const isSeparation =
         msg?.user?.indexOf(":") >= 0 || msg?.user?.indexOf("：") >= 0;
-      item.innerHTML = `<span>${msg.user + (isSeparation ? "" : "：")}</span> <span>${msg.text}</span>`;
+      if (msg.userAvatar) {
+        const avatar = document.createElement("img");
+        avatar.classList.add("avatar");
+        avatar.src = msg.userAvatar;
+        item.appendChild(avatar);
+      }
+      const content = createDocumentEl("div", { classList: ["content"] });
+      content.innerHTML = `<span>${msg.user + (isSeparation ? "" : "：")}</span> <span>${msg.text}</span>`;
+      item.append(content);
       return item;
     });
     this.listDom.append(...itemList);
-    this.setFinishText(this.finish)
+    this.setFinishText(this.finish);
   }
   setFinishText(finish: boolean) {
     this.finish = finish;

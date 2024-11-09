@@ -32,14 +32,33 @@
   .lce-search-panel-message {
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap;
     padding: 10px;
-    span:first-child {
-      white-space: nowrap;
-      font-weight: bold;
+    box-sizing: border-box;
+
+    .avatar {
+      width: 30px;
+      height: 30px;
+      object-fit: cover;
+      border-radius: 50%;
     }
-    span:last-child {
-      white-space: pre-wrap;
-      word-break: break-word;
+    .content {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      flex-grow: 1;
+      flex-basis: 0;
+      flex-shrink: 1;
+      flex-wrap: wrap;
+      margin-left: 10px;
+      span:first-child {
+        white-space: pre-wrap;
+        font-weight: bold;
+      }
+      span:last-child {
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
     }
   }
   .lce-search-panel-finish {
