@@ -16,4 +16,4 @@ type ConfigResponse = {
   value: SettingConfig
 }
 
-type MessageElement = HTMLElement | Node | Element
+type MessageElement = (HTMLElement & Element)

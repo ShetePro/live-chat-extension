@@ -5,7 +5,7 @@ import { SearchType, SiteType } from "@/enum";
 import { getChromeStorage } from "@/background/util";
 import { ExtensionConfig } from "@/background/config";
 import { watchConfig } from "@/utils/configWatcher";
-import { getQuerySelectorConfig, querySelector } from "@/utils/util";
+import {getQuerySelectorConfig, getUrlQuery, querySelector} from "@/utils/util";
 
 let contentConfig: SettingConfig | null = null;
 let liveControl: YoutubeSearch = null;
@@ -42,10 +42,11 @@ class YoutubeSearch extends LiveSearch {
     this.listSelector = querySelectorConfig.listSelector;
     this.chatListDom = querySelector(this.listSelector);
     this.siteType = SiteType.youtube;
-    this.liveId = this.href[0];
+    this.liveId = getUrlQuery('v');
     this.liveName = (
-      document.querySelector(".room-owner-username") as HTMLElement
+      document.querySelector("#text") as HTMLElement
     )?.title;
+    this.liveAvatar = (document.querySelector('#avatar img') as HTMLImageElement)?.src
     this.init();
   }
   search({
@@ -106,6 +107,10 @@ class YoutubeSearch extends LiveSearch {
     return msg?.querySelector(
       querySelectorConfig.messageSelector,
     ) as HTMLElement;
+  }
+  getUserAvatarByMsg (msg: HTMLElement) {
+    const img = msg.querySelector("#img") as HTMLImageElement;
+    return img?.src || ''
   }
   // 重写查询定位
   scrollTo(index: number): Promise<void> {

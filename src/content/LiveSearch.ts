@@ -24,6 +24,7 @@ export abstract class LiveSearch {
   indexDb: BasicIndexDb | null;
   liveId: string;
   liveName: string;
+  liveAvatar: string | undefined;
   siteType: SiteType | undefined;
   href: string | string[];
   // 获取用户名span
@@ -124,7 +125,7 @@ export abstract class LiveSearch {
           this.searchText = text;
           this.searchList = [];
           for (const chat of list) {
-            this.pushMsgBySearch(chat);
+            this.pushMsgBySearch(chat as MessageElement);
           }
           // 高亮
           this.highLight().then(() => {
@@ -142,7 +143,7 @@ export abstract class LiveSearch {
     });
   }
   pushMsgBySearch(msg: MessageElement) {
-    console.log(msg)
+    console.log(msg);
     const name = this.getNameSpanByMsg(msg)?.innerText;
     const text = this.getChatSpanByMsg(msg)?.innerText;
     if (
@@ -169,7 +170,7 @@ export abstract class LiveSearch {
     if (this.observer || !this.chatListDom) return;
     this.observer = observerListPush(this.chatListDom, (mutation) => {
       const { addedNodes } = mutation;
-      addedNodes?.forEach((lastMsg: MessageElement) => {
+      addedNodes?.forEach((lastMsg: Node) => {
         if (this.searchText) {
           const add = this.pushMsgBySearch(lastMsg as MessageElement);
           if (add) {
@@ -197,11 +198,21 @@ export abstract class LiveSearch {
     return {
       user: this.getNameSpanByMsg(msg)?.innerText,
       text: this.getChatSpanByMsg(msg)?.innerText,
+      userId: this.getUserIdByMsg?.(msg) || "",
+      userAvatar: this.getUserAvatarByMsg?.(msg) || "",
       timestamp: new Date().getTime(),
       siteType: this.siteType,
       liveId: this.liveId || "",
       liveName: this.liveName || "",
+      liveAvatar: this.liveAvatar || "",
     };
+  }
+  getUserIdByMsg(msg: MessageElement): string {
+    return msg.dataset?.userId;
+  }
+  getUserAvatarByMsg(msg: MessageElement): string {
+    const img = msg.querySelector("img");
+    return img?.src;
   }
   getScrollBar() {
     let list = document.body.querySelector("#chatRoom");

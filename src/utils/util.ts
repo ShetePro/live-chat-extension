@@ -177,3 +177,11 @@ function selectorNodeByQuery (nodeList: NodeListOf<Element>, query: string[]) {
     }
   }
 }
+export function getUrlQuery (params: string) {
+  const search = location.search
+  if (search) {
+    const urlParams = new URLSearchParams(search);
+    return urlParams.get(params)
+  }
+  return void 0
+}
