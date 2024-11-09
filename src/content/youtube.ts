@@ -5,7 +5,7 @@ import { SearchType, SiteType } from "@/enum";
 import { getChromeStorage } from "@/background/util";
 import { ExtensionConfig } from "@/background/config";
 import { watchConfig } from "@/utils/configWatcher";
-import {getQuerySelectorConfig, getUrlQuery, querySelector} from "@/utils/util";
+import {getQuerySelectorConfig, getUrlQuery} from "@/utils/util";
 
 let contentConfig: SettingConfig | null = null;
 let liveControl: YoutubeSearch = null;
@@ -40,7 +40,7 @@ class YoutubeSearch extends LiveSearch {
   constructor(config: SettingConfig) {
     super(config);
     this.listSelector = querySelectorConfig.listSelector;
-    this.chatListDom = querySelector(this.listSelector);
+    this.chatListDom = document.querySelector(this.listSelector);
     this.siteType = SiteType.youtube;
     this.liveId = getUrlQuery('v');
     this.liveName = (

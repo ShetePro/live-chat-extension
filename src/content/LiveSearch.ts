@@ -3,7 +3,6 @@ import {
   createDocumentEl,
   highLightText,
   observerListPush,
-  querySelector,
 } from "@/utils/util";
 import { BasicIndexDb } from "@/modules/IDB/indexDb";
 import { SearchType, SiteType } from "@/enum";
@@ -57,7 +56,7 @@ export abstract class LiveSearch {
       const iframes: NodeListOf<HTMLIFrameElement> =
         document.body.querySelectorAll("iframe");
       iframes.forEach((iframe) => {
-        let list = querySelector(this.listSelector, iframe.contentDocument);
+        let list =  iframe.contentDocument.querySelector(this.listSelector);
         if (list) {
           this.chatListDom = list as HTMLElement;
           this.iframe = iframe;
@@ -73,7 +72,7 @@ export abstract class LiveSearch {
   awaitIframeLoad(iframe: HTMLIFrameElement) {
     if (iframe.contentDocument) {
       iframe.addEventListener("load", () => {
-        const list = querySelector(this.listSelector, iframe.contentDocument);
+        const list = iframe.contentDocument.querySelector(this.listSelector);
         if (list) {
           this.chatListDom = list;
           this.iframe = iframe;
