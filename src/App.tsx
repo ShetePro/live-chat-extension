@@ -9,7 +9,6 @@ import {
 } from "@/background/util";
 import EmptyForm from "@/popup/empty";
 import i18next from "i18next";
-import "./popup/dark.css";
 import { setPopupTheme } from "@/utils/theme";
 
 function App() {
@@ -26,7 +25,6 @@ function App() {
       setI18nConfig({
         lng: setting.language,
       });
-      console.log(setting, "配置");
       document.querySelector("html").style.fontSize = setting.fontSize;
       setLoading(false);
       setPopupTheme(setting.theme);

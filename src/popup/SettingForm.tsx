@@ -25,11 +25,9 @@ type SettingFormProps = {
 type FormValues = z.infer<typeof formSchema>;
 function updateSetting(data: FormValues) {
   setChromeStorage(data.key, data);
-  console.log("set config", data);
 }
 
 const SettingForm = ({ config }: SettingFormProps) => {
-  console.log(config, "配置信息");
   const defaultValues: Partial<FormValues> = {
     ...config,
   };
