@@ -6,8 +6,9 @@ import {
 } from "@/components/ui/form";
 import { i18Text } from "@/locales/i8n";
 import { Switch } from "@/components/ui/switch";
+import {UseFormReturn} from "react-hook-form";
 
-const OpenSetting = ({ form }) => {
+const OpenSetting = ({ form }: { form: UseFormReturn }) => {
   return (
     <FormField
       control={form.control}

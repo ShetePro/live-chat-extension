@@ -7,8 +7,9 @@ import {
 } from "@/components/ui/form";
 import { i18Text } from "@/locales/i8n";
 import ColorSelect from "@/components/color-select/ColorSelect";
+import { UseFormReturn } from "react-hook-form";
 
-const SelectColorSetting = ({ form }) => {
+const SelectColorSetting = ({ form }: { form: UseFormReturn }) => {
   return (
     <FormField
       control={form.control}

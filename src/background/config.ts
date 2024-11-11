@@ -5,4 +5,5 @@ export const ExtensionConfig: SettingConfig = {
   selectColor: "#cd6155",
   fontSize: "16px",
   indexedDbCacheDay: "1",
+  theme: 'system'
 };

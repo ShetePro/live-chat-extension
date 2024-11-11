@@ -10,10 +10,13 @@ type SettingConfig = {
   selectColor: string;
   fontSize: string;
   indexedDbCacheDay: string;
+  theme: ThemeField;
 };
 
 type ConfigResponse = {
-  value: SettingConfig
-}
+  value: SettingConfig;
+};
 
-type MessageElement = (HTMLElement & Element)
+type MessageElement = HTMLElement & Element;
+
+type ThemeField = 'system' | 'dark' | 'light';

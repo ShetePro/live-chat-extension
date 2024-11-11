@@ -1,7 +1,7 @@
-import { i18Text, setI18nConfig } from "@/locales/i8n";
+import { setI18nConfig } from "@/locales/i8n";
 import { ExtensionConfig } from "@/background/config";
 import SettingForm from "@/popup/SettingForm";
-import { CSSProperties, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   getChromeStorage,
   setChromeStorage,
@@ -9,12 +9,12 @@ import {
 } from "@/background/util";
 import EmptyForm from "@/popup/empty";
 import i18next from "i18next";
+import "./popup/dark.css";
+import { setPopupTheme } from "@/utils/theme";
 
 function App() {
-  console.log("render app");
   const [loading, setLoading] = useState(true);
   const [config, setConfig] = useState(ExtensionConfig);
-
   useEffect(() => {
     getChromeStorage(ExtensionConfig.key).then((result) => {
       if (result) {
@@ -22,11 +22,14 @@ function App() {
       } else {
         setChromeStorage(config.key, config);
       }
+      const setting = result || config;
       setI18nConfig({
-        lng: result?.language || config.language,
+        lng: setting.language,
       });
-      document.querySelector('html').style.fontSize = (result || config).fontSize;
+      console.log(setting, "配置");
+      document.querySelector("html").style.fontSize = setting.fontSize;
       setLoading(false);
+      setPopupTheme(setting.theme);
 
       watchChromeStorage((changes) => {
         const { newValue, oldValue } = changes[ExtensionConfig.key];
@@ -37,7 +40,10 @@ function App() {
         }
         if (newValue.fontSize !== oldValue.fontSize) {
           setConfig(newValue);
-          document.querySelector('html').style.fontSize = newValue.fontSize;
+          document.querySelector("html").style.fontSize = newValue.fontSize;
+        }
+        if (newValue.theme !== oldValue.theme) {
+          setPopupTheme(newValue.theme);
         }
       });
     });
@@ -45,7 +51,7 @@ function App() {
   return (
     <>
       <div id={"app"}>
-        <header className={"title"}>{i18Text("setting")}</header>
+        {/*<header className={"title"}>{i18Text("setting")}</header>*/}
         {loading ? <EmptyForm /> : <SettingForm config={config}></SettingForm>}
       </div>
     </>

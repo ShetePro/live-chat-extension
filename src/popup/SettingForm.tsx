@@ -7,7 +7,9 @@ import SelectColorSetting from "@/popup/settings/selectColorSetting";
 import LanguageSetting from "@/popup/settings/languageSetting";
 import FontSizeSetting from "@/popup/settings/fontSizeSetting";
 import CacheSetting from "@/popup/settings/cacheSetting";
-import { setChromeStorage, watchChromeStorage } from "@/background/util";
+import { setChromeStorage } from "@/background/util";
+import { useEffect } from "react";
+import ThemeSetting from "@/popup/settings/themeSetting";
 
 const formSchema = z.object({
   key: z.string(),
@@ -21,34 +23,33 @@ type SettingFormProps = {
   config: SettingConfig;
 };
 type FormValues = z.infer<typeof formSchema>;
-function updateSetting(data: SettingConfig) {
+function updateSetting(data: FormValues) {
   setChromeStorage(data.key, data);
   console.log("set config", data);
 }
-let form;
 
 const SettingForm = ({ config }: SettingFormProps) => {
   console.log(config, "配置信息");
   const defaultValues: Partial<FormValues> = {
     ...config,
   };
-  if (!form) {
-    form = useForm<FormValues>({
-      resolver: zodResolver(formSchema),
-      defaultValues,
-      mode: "onChange",
-    });
-    form.watch(() => {
-      const data: SettingConfig = form?.getValues();
-      updateSetting(data);
-    });
-  }
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues,
+    mode: "onChange",
+  });
 
-  console.log("render setting form", form);
+  useEffect(() => {
+    form.watch(() => {
+      updateSetting(form.getValues());
+    });
+  }, []);
+
   return (
     <Form {...form}>
       <form className="space-y-2 p-2">
         <OpenSetting form={form}></OpenSetting>
+        <ThemeSetting form={form}></ThemeSetting>
         <SelectColorSetting form={form}></SelectColorSetting>
         <LanguageSetting form={form}></LanguageSetting>
         <FontSizeSetting form={form}></FontSizeSetting>

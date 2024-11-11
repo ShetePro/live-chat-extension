@@ -8,20 +8,22 @@ import { i18Text } from "@/locales/i8n";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {UseFormReturn} from "react-hook-form";
 
-const FontSizeSetting = ({ form }: { form: UseFormReturn }) => {
+const ThemeSetting = ({ form }: { form: UseFormReturn }) => {
   return (
     <FormField
       control={form.control}
-      name="fontSize"
+      name="theme"
       render={({ field }) => (
-        <FormItem className="flex flex-row items-center flex-wrap rounded-md p-2 shadow setting-item">
-          <FormLabel className={'mr-2'}>{i18Text("fontSizeSetting")}</FormLabel>
+        <FormItem className="flex flex-row items-start rounded-md p-2 shadow setting-item">
+          <FormLabel>{i18Text("theme")}</FormLabel>
           <FormControl>
             <Tabs value={field.value} onValueChange={field.onChange}>
               <TabsList>
-                <TabsTrigger value="14px">{i18Text("small")}</TabsTrigger>
-                <TabsTrigger value="16px">{i18Text("medium")}</TabsTrigger>
-                <TabsTrigger value="18px">{i18Text("large")}</TabsTrigger>
+                <TabsTrigger value="system">
+                  {i18Text("followSystem")}
+                </TabsTrigger>
+                <TabsTrigger value="dark">{i18Text("dark")}</TabsTrigger>
+                <TabsTrigger value="light">{i18Text("light")}</TabsTrigger>
               </TabsList>
             </Tabs>
           </FormControl>
@@ -31,4 +33,4 @@ const FontSizeSetting = ({ form }: { form: UseFormReturn }) => {
   );
 };
 
-export default FontSizeSetting;
+export default ThemeSetting;

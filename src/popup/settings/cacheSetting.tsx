@@ -7,8 +7,9 @@ import {
 } from "@/components/ui/form";
 import { i18Text } from "@/locales/i8n";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {UseFormReturn} from "react-hook-form";
 
-const CacheSetting = ({ form }) => {
+const CacheSetting = ({ form }: { form: UseFormReturn }) => {
   const unitText = i18Text("dayUnit");
   return (
     <FormField
