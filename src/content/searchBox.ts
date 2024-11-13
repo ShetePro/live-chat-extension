@@ -6,6 +6,7 @@ import { i18Text } from "@/locales/i8n";
 import { ChatMessageType } from "@/modules/IDB/type";
 // @ts-ignore
 import Styles from "./index.css?inline";
+import {setPopupTheme} from "@/utils/theme";
 
 type SearchBoxOption = {
   indexDb: BasicIndexDb;
@@ -16,6 +17,7 @@ type SearchBoxOption = {
   liveId: string;
   siteType: SiteType;
   fontSize?: string;
+  theme?: ThemeField;
 };
 export class SearchBox {
   option: SearchBoxOption;
@@ -32,11 +34,13 @@ export class SearchBox {
   searchBox: HTMLElement;
   searchPanel: SearchPanel | null;
   fontSize: string;
+  theme: ThemeField;
   constructor(opt: SearchBoxOption) {
     this.option = opt;
     this.isSearch = false;
     this.indexDb = opt.indexDb;
     this.fontSize = opt.fontSize;
+    this.theme = opt.theme;
     this.searchText = "";
     this.index = 0;
     this.total = 0;
@@ -51,6 +55,9 @@ export class SearchBox {
         return this.searchByIndexedDB.call(this as SearchBox, params);
       },
     });
+  }
+  setTheme (e: boolean) {
+    this.searchBox?.classList.add(e ? 'dark' : 'light');
   }
   // 拖拽事件
   drag(e: MouseEvent) {
@@ -75,6 +82,7 @@ export class SearchBox {
   renderSearch() {
     console.log("显示直播弹幕查询");
     this.searchBox.classList.add("lce-search-box");
+    setPopupTheme(this.theme, (e) => this.setTheme(e))
     const main = document.createElement("div");
     const panel = this.searchPanel?.create();
     panel && this.searchBox.append(panel);

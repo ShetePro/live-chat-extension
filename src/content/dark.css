@@ -1,0 +1,6 @@
+.lce-search-box, .dark {
+  --fontColor: hsl(0 0% 95%) !important;
+  --backgroundColor: #26292b !important;
+  --primaryColor: hsl(142.1 70.6% 45.3%) !important;
+  --secondaryColor: hsl(217.2 91.2% 59.8%) !important;
+}

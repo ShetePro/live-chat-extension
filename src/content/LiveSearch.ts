@@ -91,6 +91,7 @@ export abstract class LiveSearch {
       searchCallback: (data: any) => this.search(data),
       position: (index: number) => this.scrollTo(index),
       fontSize: this.contentConfig.fontSize,
+      theme: this.contentConfig.theme,
     });
     this.searchBox.renderSearch();
     this.indexDb?.init().then(() => {

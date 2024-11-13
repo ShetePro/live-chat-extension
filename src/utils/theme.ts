@@ -1,24 +1,29 @@
-export function setPopupTheme(theme: ThemeField) {
-  const mediaQuery = window.matchMedia
-    ? window.matchMedia("(prefers-color-scheme: dark)")
-    : null;
-  let isDark: boolean;
+let changeEvent: (isDark: boolean) => void;
+const mediaQuery = window.matchMedia
+  ? window.matchMedia("(prefers-color-scheme: dark)")
+  : null;
+export function setPopupTheme(
+  theme: ThemeField,
+  callback?: (isDark: boolean) => void,
+) {
+  const isDark = handleTheme(theme);
+  console.log(isDark, theme);
+  changeEvent = callback || togglePopupTheme;
+  changeEvent(isDark);
+}
+export function handleTheme(theme: ThemeField): boolean {
   if (theme === "system") {
-    isDark = mediaQuery?.matches;
-    mediaQuery.addEventListener("change", watchSystemTheme);
+    mediaQuery.addEventListener("change", systemThemeChange);
+    return mediaQuery?.matches;
   } else {
-    isDark = theme === "dark";
-    mediaQuery.removeEventListener("change", watchSystemTheme);
+    mediaQuery.removeEventListener("change", systemThemeChange);
+    return theme === "dark";
   }
-  console.log(theme, isDark)
-  toggleTheme(isDark);
 }
-
-function watchSystemTheme(event: MediaQueryListEvent) {
-  toggleTheme(event.matches);
+function systemThemeChange(e: MediaQueryListEvent) {
+  changeEvent?.(e.matches);
 }
-
-export function toggleTheme(isDark: boolean) {
+export function togglePopupTheme(isDark: boolean) {
   const html = document.querySelector("html");
   if (!html) return;
   html.classList.remove("dark", "light");
