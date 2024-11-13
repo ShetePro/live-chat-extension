@@ -9,7 +9,7 @@
   top: 80%;
   width: 80px;
   height: 80px;
-  background-image: url("../../assets/popup.png");
+  background-image: url("../../public/logo.png");
   background-size: 100% 100%;
   background-repeat: no-repeat;
   z-index: 99999;
