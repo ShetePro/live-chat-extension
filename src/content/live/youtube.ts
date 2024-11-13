@@ -1,18 +1,22 @@
+import "../index.css";
 import { setI18nConfig } from "@/locales/i8n";
-import { LiveSearch } from "./LiveSearch";
+import { LiveSearch } from "../LiveSearch";
 import { SearchType, SiteType } from "@/enum";
 import { getChromeStorage } from "@/background/util";
 import { ExtensionConfig } from "@/background/config";
 import { watchConfig } from "@/utils/configWatcher";
+import {getQuerySelectorConfig, getUrlQuery} from "@/utils/util";
 
 let contentConfig: SettingConfig | null = null;
-let liveControl: BiliBiliSearch = null;
+let liveControl: YoutubeSearch = null;
+const querySelectorConfig = getQuerySelectorConfig()["youtube"];
 setTimeout(() => {
   getChromeStorage(ExtensionConfig.key).then((result) => {
+    console.log("config", result);
     contentConfig = result;
     init();
   });
-}, 2000);
+}, 4000);
 watchConfig(() => liveControl, init).then((res) => {
   contentConfig = res;
 });
@@ -29,20 +33,20 @@ function init(config: SettingConfig = contentConfig) {
 }
 function searchInit() {
   liveControl?.destroy();
-  console.log(location.href);
-  liveControl = new BiliBiliSearch(contentConfig);
+  liveControl = new YoutubeSearch(contentConfig);
 }
 
-class BiliBiliSearch extends LiveSearch {
+class YoutubeSearch extends LiveSearch {
   constructor(config: SettingConfig) {
     super(config);
-    this.listSelector = "#chat-items";
+    this.listSelector = querySelectorConfig.listSelector;
     this.chatListDom = document.querySelector(this.listSelector);
-    this.siteType = SiteType.bilibili;
-    this.liveId = this.href[0];
+    this.siteType = SiteType.youtube;
+    this.liveId = getUrlQuery('v');
     this.liveName = (
-      document.querySelector(".room-owner-username") as HTMLElement
+      document.querySelector("#text") as HTMLElement
     )?.title;
+    this.liveAvatar = (document.querySelector('#avatar img') as HTMLImageElement)?.src
     this.init();
   }
   search({
@@ -81,9 +85,10 @@ class BiliBiliSearch extends LiveSearch {
     });
   }
   pushMsgBySearch(msg: HTMLElement) {
-    const { danmaku, uname } = msg.dataset;
+    const user = this.getNameSpanByMsg(msg)?.innerText;
+    const text = this.getChatSpanByMsg(msg)?.innerText;
     if (
-      (this.searchType === SearchType.user ? uname : danmaku)?.indexOf(
+      (this.searchType === SearchType.user ? user : text)?.indexOf(
         this.searchText,
       ) >= 0
     ) {
@@ -93,40 +98,37 @@ class BiliBiliSearch extends LiveSearch {
     return false;
   }
   getNameSpanByMsg(msg: HTMLElement) {
-    return msg?.querySelector(".user-name") as HTMLElement;
+    return msg?.querySelector(
+      querySelectorConfig.userNameSelector,
+    ) as HTMLElement;
   }
   // 获取内容span
   getChatSpanByMsg(msg: HTMLElement) {
-    return msg?.querySelector(".danmaku-item-right") as HTMLElement;
+    return msg?.querySelector(
+      querySelectorConfig.messageSelector,
+    ) as HTMLElement;
   }
-  getScrollBar(): HTMLElement {
-    const selector = "#chat-history-list";
-    let list = document.body.querySelector(selector);
-    if (!list && this.iframe?.contentDocument) {
-      list = this.iframe.contentDocument.activeElement.querySelector(selector);
-    }
-    return list?.querySelector(".ps__scrollbar-y-rail");
+  getUserAvatarByMsg (msg: HTMLElement) {
+    const img = msg.querySelector("#img") as HTMLImageElement;
+    return img?.src || ''
   }
+  // 重写查询定位
   scrollTo(index: number): Promise<void> {
     return new Promise((resolve, reject) => {
       const textDom = this.searchList[index - 1];
+      if (!this.chatListDom) return;
       if (!textDom) {
-        console.log("index 错误");
+        console.log("index 错误", index);
         reject();
         return;
       }
-      const scrollBar = this.getScrollBar();
       this.searchTextTop = textDom.offsetTop;
-      const top = this.searchTextTop - parseInt(scrollBar?.style.top);
-      // 创建WheelEvent对象
-      const event = new WheelEvent("wheel", {
-        bubbles: true,
-        cancelable: true,
-        deltaX: 0,
-        deltaY: top, // 向上滚动
-        deltaMode: WheelEvent.DOM_DELTA_PIXEL,
-      });
-      this.chatListDom?.dispatchEvent(event);
+      const scroll = this.chatListDom.parentElement.parentElement as HTMLElement;
+      const top = textDom.offsetTop - 100;
+      scroll.scrollTo({
+        top,
+        behavior: "auto",
+      })
       resolve();
     });
   }

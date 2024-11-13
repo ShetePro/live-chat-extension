@@ -1,8 +1,8 @@
-import "./index.css";
-import { watchConfig } from "../utils/configWatcher";
-import { setI18nConfig } from "../locales/i8n";
-import { LiveSearch } from "./LiveSearch";
-import { SiteType } from "../enum";
+import "../index.css";
+import { watchConfig } from "../../utils/configWatcher";
+import { setI18nConfig } from "../../locales/i8n";
+import { LiveSearch } from "../LiveSearch";
+import { SiteType } from "../../enum";
 import { getChromeStorage } from "@/background/util";
 import { ExtensionConfig } from "@/background/config";
 

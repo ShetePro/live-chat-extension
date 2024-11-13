@@ -21,31 +21,31 @@
     {
       "matches": ["https://live.bilibili.com/*"],
       "type": "module",
-      "js": ["src/content/bilibili.ts"],
+      "js": ["src/content/live/bilibili.ts"],
       "run_at": "document_end"
     },
     {
       "matches": ["https://www.huya.com/*"],
       "type": "module",
-      "js": ["src/content/huya.ts"],
+      "js": ["src/content/live/huya.ts"],
       "run_at": "document_end"
     },
     {
       "matches": ["https://www.douyu.com/*"],
       "type": "module",
-      "js": ["src/content/douyu.ts"],
+      "js": ["src/content/live/douyu.ts"],
       "run_at": "document_end"
     },
     {
       "matches": ["https://www.youtube.com/watch*"],
       "type": "module",
-      "js": ["src/content/youtube.ts"],
+      "js": ["src/content/live/youtube.ts"],
       "run_at": "document_end"
     },
     {
       "matches": ["https://www.twitch.tv/*"],
       "type": "module",
-      "js": ["src/content/huya.ts"],
+      "js": ["src/content/live/huya.ts"],
       "run_at": "document_end"
     }
   ],
