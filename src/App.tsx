@@ -9,7 +9,7 @@ import {
 } from "@/background/util";
 import EmptyForm from "@/popup/empty";
 import i18next from "i18next";
-import { setPopupTheme } from "@/utils/theme";
+import { setThemeMode } from "@/utils/theme";
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -27,7 +27,7 @@ function App() {
       });
       document.querySelector("html").style.fontSize = setting.fontSize;
       setLoading(false);
-      setPopupTheme(setting.theme);
+      setThemeMode(setting.theme);
 
       watchChromeStorage((changes) => {
         const { newValue, oldValue } = changes[ExtensionConfig.key];
@@ -41,7 +41,7 @@ function App() {
           document.querySelector("html").style.fontSize = newValue.fontSize;
         }
         if (newValue.theme !== oldValue.theme) {
-          setPopupTheme(newValue.theme);
+          setThemeMode(newValue.theme);
         }
       });
     });
