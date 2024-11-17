@@ -9,7 +9,7 @@
   margin-top: 10px;
   padding-top: 5px;
   border-radius: 10px;
-  background-color: white;
+  background-color: var(--backgroundColor);
   overflow-y: auto;
   opacity: 0;
   user-select: none;
@@ -51,6 +51,7 @@
       flex-shrink: 1;
       flex-wrap: wrap;
       margin-left: 10px;
+      color: var(--fontColor);
       span:first-child {
         white-space: pre-wrap;
         font-weight: bold;
