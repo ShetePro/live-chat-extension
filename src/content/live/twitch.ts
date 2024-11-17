@@ -5,14 +5,13 @@ import { SearchType, SiteType } from "@/enum";
 import { getChromeStorage } from "@/background/util";
 import { ExtensionConfig } from "@/background/config";
 import { watchConfig } from "@/utils/configWatcher";
-import {getQuerySelectorConfig, getUrlQuery} from "@/utils/util";
+import { getQuerySelectorConfig } from "@/utils/util";
 
 let contentConfig: SettingConfig | null = null;
-let liveControl: YoutubeSearch = null;
-const querySelectorConfig = getQuerySelectorConfig()["youtube"];
+let liveControl: TwitchSearch = null;
+const querySelectorConfig = getQuerySelectorConfig()["twitch"];
 setTimeout(() => {
   getChromeStorage(ExtensionConfig.key).then((result) => {
-    console.log("config", result);
     contentConfig = result;
     init();
   });
@@ -33,20 +32,20 @@ function init(config: SettingConfig = contentConfig) {
 }
 function searchInit() {
   liveControl?.destroy();
-  liveControl = new YoutubeSearch(contentConfig);
+  liveControl = new TwitchSearch(contentConfig);
 }
 
-class YoutubeSearch extends LiveSearch {
+class TwitchSearch extends LiveSearch {
   constructor(config: SettingConfig) {
     super(config);
     this.listSelector = querySelectorConfig.listSelector;
     this.chatListDom = document.querySelector(this.listSelector);
     this.siteType = SiteType.youtube;
-    this.liveId = getUrlQuery('v');
-    this.liveName = (
-      document.querySelector("#text") as HTMLElement
-    )?.title;
-    this.liveAvatar = (document.querySelector('#avatar img') as HTMLImageElement)?.src
+    this.liveId = this.href[0];
+    this.liveName = this.href[0];
+    this.liveAvatar = (
+      document.querySelector("#avatar img") as HTMLImageElement
+    )?.src;
     this.init();
   }
   search({
@@ -108,9 +107,9 @@ class YoutubeSearch extends LiveSearch {
       querySelectorConfig.messageSelector,
     ) as HTMLElement;
   }
-  getUserAvatarByMsg (msg: HTMLElement) {
+  getUserAvatarByMsg(msg: HTMLElement) {
     const img = msg.querySelector(querySelectorConfig.avatarSelector) as HTMLImageElement;
-    return img?.src || ''
+    return img?.src || "";
   }
   // 重写查询定位
   scrollTo(index: number): Promise<void> {
@@ -123,12 +122,13 @@ class YoutubeSearch extends LiveSearch {
         return;
       }
       this.searchTextTop = textDom.offsetTop;
-      const scroll = this.chatListDom.parentElement.parentElement as HTMLElement;
+      const scroll = this.chatListDom.parentElement
+        .parentElement as HTMLElement;
       const top = textDom.offsetTop - 100;
       scroll.scrollTo({
         top,
         behavior: "auto",
-      })
+      });
       resolve();
     });
   }

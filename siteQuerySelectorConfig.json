@@ -3,6 +3,13 @@
   "youtube": {
     "listSelector": "#items.yt-live-chat-item-list-renderer",
     "userNameSelector": "#author-name",
-    "messageSelector": "#message"
+    "messageSelector": "#message",
+    "avatarSelector": "#img"
+  },
+  "twitch": {
+    "listSelector": ".chat-scrollable-area__message-container",
+    "userNameSelector": ".chat-author__display-name",
+    "messageSelector": ".text-fragment",
+    "avatarSelector": "img"
   }
 }

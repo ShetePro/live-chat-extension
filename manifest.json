@@ -9,9 +9,14 @@
       "matches": ["https://live.bilibili.com/*", "https://www.huya.com/*", "https://www.douyu.com/*", "https://www.youtube.com/*"]
     }
   ],
+  "icons": {
+    "32": "public/logo_32.png",
+    "48": "public/logo_48.png",
+    "128": "public/logo.png"
+  },
   "action": {
     "default_popup": "index.html",
-    "default_icon": "public/popup.png",
+    "default_icon": "public/logo.png",
     "default_title": "Live Chat Extension"
   },
   "background": {
@@ -45,7 +50,7 @@
     {
       "matches": ["https://www.twitch.tv/*"],
       "type": "module",
-      "js": ["src/content/live/huya.ts"],
+      "js": ["src/content/live/twitch.ts"],
       "run_at": "document_end"
     }
   ],
