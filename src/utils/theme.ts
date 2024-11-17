@@ -2,13 +2,12 @@ let changeEvent: (isDark: boolean) => void;
 const mediaQuery = window.matchMedia
   ? window.matchMedia("(prefers-color-scheme: dark)")
   : null;
-export function setPopupTheme(
+export function setThemeMode(
   theme: ThemeField,
   callback?: (isDark: boolean) => void,
 ) {
   const isDark = handleTheme(theme);
-  console.log(isDark, theme);
-  changeEvent = callback || togglePopupTheme;
+  changeEvent = callback || toggleTheme;
   changeEvent(isDark);
 }
 export function handleTheme(theme: ThemeField): boolean {
@@ -23,7 +22,8 @@ export function handleTheme(theme: ThemeField): boolean {
 function systemThemeChange(e: MediaQueryListEvent) {
   changeEvent?.(e.matches);
 }
-export function togglePopupTheme(isDark: boolean) {
+export function toggleTheme(isDark: boolean) {
+  console.log(isDark, 'theme')
   const html = document.querySelector("html");
   if (!html) return;
   html.classList.remove("dark", "light");

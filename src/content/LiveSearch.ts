@@ -7,6 +7,7 @@ import {
 import { BasicIndexDb } from "@/modules/IDB/indexDb";
 import { SearchType, SiteType } from "@/enum";
 import { ChatMessageType } from "@/modules/IDB/type";
+import {handleTheme} from "@/utils/theme";
 
 export abstract class LiveSearch {
   liveData: Record<string, any>[];
@@ -99,6 +100,10 @@ export abstract class LiveSearch {
       console.log("开启IndexDb监听");
       this.watchMessage();
     });
+  }
+  setTheme (theme: ThemeField) {
+    const isDark = handleTheme(theme)
+    this.searchBox?.setTheme(isDark)
   }
   destroy() {
     this.clearHighLight().then(() => {

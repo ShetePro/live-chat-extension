@@ -1,4 +1,4 @@
-import {createDocumentEl, debounce, injectShadowStyle} from "@/utils/util";
+import { createDocumentEl, debounce, injectShadowStyle } from "@/utils/util";
 import { SearchPageType, SearchPanel } from "./searchPanel";
 import { BasicIndexDb } from "@/modules/IDB/indexDb";
 import { SearchType, SiteType } from "@/enum";
@@ -6,7 +6,7 @@ import { i18Text } from "@/locales/i8n";
 import { ChatMessageType } from "@/modules/IDB/type";
 // @ts-ignore
 import Styles from "./index.css?inline";
-import {setPopupTheme} from "@/utils/theme";
+import { setThemeMode } from "@/utils/theme";
 
 type SearchBoxOption = {
   indexDb: BasicIndexDb;
@@ -56,8 +56,9 @@ export class SearchBox {
       },
     });
   }
-  setTheme (e: boolean) {
-    this.searchBox?.classList.add(e ? 'dark' : 'light');
+  setTheme(e: boolean) {
+    this.searchBox?.classList.remove('dark', 'light')
+    this.searchBox?.classList.add(e ? "dark" : "light");
   }
   // 拖拽事件
   drag(e: MouseEvent) {
@@ -82,7 +83,7 @@ export class SearchBox {
   renderSearch() {
     console.log("显示直播弹幕查询");
     this.searchBox.classList.add("lce-search-box");
-    setPopupTheme(this.theme, (e) => this.setTheme(e))
+    setThemeMode(this.theme, (e) => this.setTheme(e));
     const main = document.createElement("div");
     const panel = this.searchPanel?.create();
     panel && this.searchBox.append(panel);
@@ -157,22 +158,16 @@ export class SearchBox {
     });
     // 取消按键冒泡 防止输入时触发快捷键
     box.addEventListener("keydown", (e) => {
-      e.stopPropagation()
-    })
+      e.stopPropagation();
+    });
     box.addEventListener("keyup", (e) => {
-      e.stopPropagation()
-    })
+      e.stopPropagation();
+    });
     box.addEventListener("compositionstart", () => {
       console.log("start");
       this.cnFlag = true;
     });
-    box.addEventListener(
-      "input",
-      debounce(
-          this.searchTextEvent,
-        0, this
-      ),
-    );
+    box.addEventListener("input", debounce(this.searchTextEvent, 0, this));
     box.addEventListener("compositionend", () => {
       console.log("end");
       this.cnFlag = false;
@@ -214,9 +209,9 @@ export class SearchBox {
     this.searchBox?.append(group);
   }
   searchTextEvent() {
-    const target = this.searchBox.querySelector('.lce-input')
-    if (!target) return
-    const { value } = target as HTMLInputElement
+    const target = this.searchBox.querySelector(".lce-input");
+    if (!target) return;
+    const { value } = target as HTMLInputElement;
     this.searchText = value;
     this.isSearch = this.searchText?.length > 0;
     if (!this.cnFlag) {
