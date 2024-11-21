@@ -48,12 +48,15 @@ export class SearchPanel {
     this.loadingIcon = createDocumentEl("div", {
       classList: ["lce-search-panel-loading"],
     });
+    this.loadingIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid" width="50" height="50" style="shape-rendering: auto; display: block; background: transparent" xmlns:xlink="http://www.w3.org/1999/xlink"><g><path stroke="none" fill="#00cc99" d="M10 50A40 40 0 0 0 90 50A40 42 0 0 1 10 50">
+  <animateTransform values="0 50 51; 180 50 51; 360 50 51" repeatCount="indefinite" dur="1s" type="rotate" attributeName="transform" begin="0s"></animateTransform>
+</path><g></g></g></svg>`;
     this.loading = false;
   }
   create() {
     this.dom = createDocumentEl("div", {
       classList: [this.class],
-      append: [this.headerDom, this.listDom],
+      append: [this.headerDom, this.loadingIcon, this.listDom],
     });
     this.dom.addEventListener("scroll", (e) => {
       const viewHeight = this.dom?.clientHeight;
@@ -92,7 +95,7 @@ export class SearchPanel {
   search({ next }: { next?: boolean } = {}) {
     if (!next) {
       this.chatRecord = [];
-      this.listDom.innerHTML = "";
+      // this.listDom.innerHTML = "";
     }
     if (this.finish) return;
     this.setLoading(true);
@@ -156,12 +159,9 @@ export class SearchPanel {
   setLoading(load: boolean) {
     this.loading = load;
     if (this.loading && this.loadingIcon) {
-      this.loadingIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid" width="50" height="50" style="shape-rendering: auto; display: block; background: rgb(255, 255, 255);" xmlns:xlink="http://www.w3.org/1999/xlink"><g><path stroke="none" fill="#00cc99" d="M10 50A40 40 0 0 0 90 50A40 42 0 0 1 10 50">
-  <animateTransform values="0 50 51; 180 50 51; 360 50 51" keyTimes="0; 0.5; 1" repeatCount="indefinite" dur="1s" type="rotate" attributeName="transform"></animateTransform>
-</path><g></g></g></svg>`;
-      this.listDom?.append(this.loadingIcon);
+      this.loadingIcon.style.display = 'flex';
     } else {
-      this.loadingIcon?.remove();
+      this.loadingIcon.style.display = 'none';
     }
   }
 }

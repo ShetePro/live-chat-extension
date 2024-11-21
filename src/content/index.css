@@ -42,6 +42,7 @@
   left: 0;
   z-index: 9999999;
   cursor: move;
+  color: var(--fontColor);
   --fontSize: 14px;
   --fontColor: hsl(240 10% 3.9%);
   --backgroundColor: hsl(240 4.8% 95.9%);
@@ -140,6 +141,7 @@
     }
   }
   .index-total {
+    color: var(--fontColor);
     white-space: nowrap;
     margin-right: 5px;
     font-size: calc(var(--fontSize) * 0.875);

@@ -128,7 +128,6 @@ export class SearchBox {
       classList: ["lce-type-select-message", "lce-type-box"],
       append: [i18Text("chat")],
     });
-    console.log(this.type);
     userBox.classList.add(
       this.type === SearchType.user ? "lce-type-show" : "lce-type-hide",
     );
