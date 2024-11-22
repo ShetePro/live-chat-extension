@@ -52,11 +52,15 @@
       flex-wrap: wrap;
       margin-left: 10px;
       color: var(--fontColor);
-      span:first-child {
+      .user-name {
         white-space: pre-wrap;
         font-weight: bold;
+        cursor: pointer;
+        &:hover {
+          color: #2196f3;
+        }
       }
-      span:last-child {
+      .user-message {
         white-space: pre-wrap;
         word-break: break-word;
       }

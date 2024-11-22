@@ -57,7 +57,7 @@ export class SearchBox {
     });
   }
   setTheme(e: boolean) {
-    this.searchBox?.classList.remove('dark', 'light')
+    this.searchBox?.classList.remove("dark", "light");
     this.searchBox?.classList.add(e ? "dark" : "light");
   }
   // 拖拽事件
@@ -102,6 +102,7 @@ export class SearchBox {
     this.searchBox.addEventListener(
       "mousedown",
       (e) => {
+        console.log("mousedown", e);
         const { left, top } = this.searchBox?.getBoundingClientRect();
         this.offset = {
           x: e.x - left,

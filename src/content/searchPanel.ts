@@ -1,6 +1,7 @@
 import { createDocumentEl } from "../utils/util";
 import { i18Text } from "../locales/i8n";
 import { ChatMessageType } from "../modules/IDB/type";
+import { siteServer } from "@/content/siteServer";
 export type SearchPageOption = {
   onNext: (params: SearchPageType) => Promise<ChatMessageType[]>;
 };
@@ -95,7 +96,7 @@ export class SearchPanel {
   search({ next }: { next?: boolean } = {}) {
     if (!next) {
       this.chatRecord = [];
-      // this.listDom.innerHTML = "";
+      this.listDom.innerHTML = "";
     }
     if (this.finish) return;
     this.setLoading(true);
@@ -140,8 +141,24 @@ export class SearchPanel {
         avatar.src = msg.userAvatar;
         item.appendChild(avatar);
       }
-      const content = createDocumentEl("div", { classList: ["content"] });
-      content.innerHTML = `<span>${msg.user + (isSeparation ? "" : "：")}</span> <span>${msg.text}</span>`;
+      const split = isSeparation ? "" : "：";
+      const name = createDocumentEl("span", {
+        classList: ["user-name"],
+        append: [`${msg.user}`],
+      });
+      name.addEventListener("click", (e) => {
+        console.log("click user", e);
+        siteServer.userHome(msg);
+        e.stopPropagation();
+      });
+      const message = createDocumentEl("span", {
+        classList: ["user-message"],
+        append: [split, `${msg.text}`],
+      });
+      const content = createDocumentEl("div", {
+        classList: ["content"],
+        append: [name, message],
+      });
       item.append(content);
       return item;
     });
@@ -159,9 +176,9 @@ export class SearchPanel {
   setLoading(load: boolean) {
     this.loading = load;
     if (this.loading && this.loadingIcon) {
-      this.loadingIcon.style.display = 'flex';
+      this.loadingIcon.style.display = "flex";
     } else {
-      this.loadingIcon.style.display = 'none';
+      this.loadingIcon.style.display = "none";
     }
   }
 }

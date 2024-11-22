@@ -4,6 +4,8 @@ import { SearchType, SiteType } from "@/enum";
 import { getChromeStorage } from "@/background/util";
 import { ExtensionConfig } from "@/background/config";
 import { watchConfig } from "@/utils/configWatcher";
+import { siteServer } from "@/content/siteServer";
+import { ChatMessageType } from "@/modules/IDB/type";
 
 let contentConfig: SettingConfig | null = null;
 let liveControl: BiliBiliSearch = null;
@@ -16,6 +18,9 @@ setTimeout(() => {
 watchConfig(() => liveControl, init).then((res) => {
   contentConfig = res;
 });
+siteServer.userHome = (msg: ChatMessageType) => {
+  window.open(`https://space.bilibili.com/${msg.userId}/`);
+};
 function init(config: SettingConfig = contentConfig) {
   if (!config) return;
   setI18nConfig({
